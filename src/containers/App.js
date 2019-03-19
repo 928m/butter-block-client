@@ -12,10 +12,14 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-
+  return {
+    onLogin(value) {
+      console.log(value.trim());
+    }
+  };
 };
 
 export default connect(
   mapStateToProps,
-  // mapDispatchToProps
+  mapDispatchToProps
 )(App);

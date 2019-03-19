@@ -5,7 +5,7 @@ import Login from '../block/Login';
 class App extends Component {
   render() {
     return (
-      <Login />
+      <Login onClickLogin={this.props.onLogin} />
     );
   }
 }
