@@ -1,11 +1,25 @@
 import { cloneDeep } from 'lodash';
 
-const initialState = {};
+const initialState = {
+  id: '',
+  order: 0,
+  users: []
+};
 
 const user = (state = initialState, action) => {
-  switch (action.type) {
-    case 'ACTION_TYPE':
-      return false;
+  const {
+    type,
+    id,
+    order
+  } = action;
+  const newUser = cloneDeep(state);
+
+  switch (type) {
+    case 'USER_INFO_SETTINGS':
+      newUser.id = id;
+      newUser.order = order;
+
+      return newUser;
     default:
       return state;
   }
