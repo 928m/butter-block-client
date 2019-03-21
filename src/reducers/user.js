@@ -2,8 +2,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
   id: '',
-  order: 0,
-  users: []
+  order: 0
 };
 
 const user = (state = initialState, action) => {

@@ -11,7 +11,7 @@ let socket;
 
 const mapStateToProps = (state) => {
   console.log(state);
-  return state;
+  return {...state, socket};
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -21,8 +21,8 @@ const mapDispatchToProps = (dispatch) => {
 
       socket.emit('user', name);
 
-      socket.on('order', ({ userId, userOrder }) => {
-        dispatch(userInfoSettings(userId, userOrder));
+      socket.on('order', ({ id, order }) => {
+        dispatch(userInfoSettings(id, order));
       });
 
       socket.on('users', (users) => {
@@ -36,6 +36,9 @@ const mapDispatchToProps = (dispatch) => {
       socket.on('submission', (problem) => {
         dispatch(problemSubmissionInfoSettings(problem));
       });
+    },
+    createCube(cubeObj) {
+      socket.emit('create cube', cubeObj);
     }
   };
 };

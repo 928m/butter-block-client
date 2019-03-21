@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
   isStart: false,
-  keyword: '',
+  problem: '',
   length: 0,
   submissionUser: '',
   isPass: false
@@ -19,6 +19,7 @@ const quiz = (state = initialState, action) => {
 
   switch (type) {
     case 'PROBLEM_SUBMISSION_INFO_SETTINGS':
+      newQuiz.isStart = true;
       newQuiz.problem = problem;
 
       return newQuiz;

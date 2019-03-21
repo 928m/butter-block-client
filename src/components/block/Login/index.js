@@ -50,7 +50,7 @@ class Login extends Component{
     return (
       <LoginWrap className="login-wrap">
         <div className="inner">
-          {/* <Logo /> */}
+          <Logo />
           <LoginCont>
             <Input type="text" placeholder="create your name" onChange={this.onChangeInputValue} />
             {
