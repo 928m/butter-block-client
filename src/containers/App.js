@@ -4,7 +4,8 @@ import {
   userListSettings,
   problemSubmissionInfoSettings,
   problemInfoSettings,
-  receiveMessage
+  receiveMessage,
+  colorSettings
 } from '../actions';
 import App from '../components/App/App';
 import io from 'socket.io-client';
@@ -14,7 +15,8 @@ const mapStateToProps = (state) => {
   const {
     chat,
     quiz,
-    user
+    user,
+    screen
   } = state;
   const userList = state.users;
 
@@ -31,6 +33,7 @@ const mapStateToProps = (state) => {
     quiz,
     user,
     users,
+    screen,
     socket
   };
 };
@@ -66,6 +69,13 @@ const mapDispatchToProps = (dispatch) => {
     },
     receiveMessage(id, message) {
       dispatch(receiveMessage(id, message));
+
+      setTimeout(() => {
+        dispatch(receiveMessage(id));
+      }, 2000);
+    },
+    onChangeColor(color) {
+      dispatch(colorSettings(Number(color)));
     }
   };
 };

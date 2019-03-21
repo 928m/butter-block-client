@@ -3,10 +3,12 @@ import user from './user';
 import users from './users';
 import quiz from './quiz';
 import chat from './chat';
+import screen from './screen';
 
 export default combineReducers({
   user,
   users,
   quiz,
-  chat
+  chat,
+  screen
 });

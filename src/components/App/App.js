@@ -76,7 +76,7 @@ class ThreeScene extends Component{
 
     // cubes
     this.cubeGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
-    this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfbbc05 } );
+    this.cubeMaterial = new THREE.MeshLambertMaterial( { color: this.props.color } );
 
     // grid
     const gridHelper = new THREE.GridHelper( 1000, 20 );
@@ -130,7 +130,7 @@ class ThreeScene extends Component{
   }
 
   renderScene() {
-    this.renderer.render(this.scene, this.camera)
+    this.renderer.render(this.scene, this.camera);
   }
 
   onMove(event) {
@@ -163,6 +163,7 @@ class ThreeScene extends Component{
     this.mouse.set(( event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1);
     this.raycaster.setFromCamera(this.mouse, this.camera);
     this.intersects = this.raycaster.intersectObjects(this.objects);
+    this.cubeMaterial = new THREE.MeshLambertMaterial( { color: this.props.color } );
 
     if ( this.intersects.length > 0 ) {
       this.intersect = this.intersects[ 0 ];
@@ -175,13 +176,12 @@ class ThreeScene extends Component{
         // create cube
       } else {
         const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial );
-        const custumColor = 0xb4c1cb;
         voxel.position.copy( this.intersect.point ).add( this.intersect.face.normal );
         voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
 
         createCube({
           position: voxel.position,
-          color: custumColor
+          color: this.props.color
         });
 
         this.scene.add( voxel );
@@ -222,6 +222,7 @@ const MessageContent = styled.p`
   border-radius: 15px 15px 0 15px;
   background: rgba(255, 255, 255, .5);
   color: #181818;
+  font-weight: 700;
   animation: message .5s;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 
@@ -230,35 +231,6 @@ const MessageContent = styled.p`
     100% { transform: translateY(0); }
   }
 `;
-
-class Message extends Component {
-  render() {
-    return <MessageContent>{this.props.text}</MessageContent>;
-  }
-}
-
-class Users extends Component {
-  render() {
-    const { users } = this.props;
-
-    return (
-      <ul className="users">
-        {
-          users.map((user) => (
-            <li key={user.id} data-id={user.id}>
-              <Cube />
-              <span>{user.nickname}</span>
-              {
-                user.message
-                && <Message text={user.message} />
-              }
-            </li>
-          ))
-        }
-      </ul>
-    );
-  }
-};
 
 const ChatWrap = styled.div`
   display: block;
@@ -320,7 +292,42 @@ const ChatInput = styled.input`
     background: rgba(252, 220, 75, .7);
     color: #000000;
   }
+
+  &::placeholder {
+    text-transform: uppercase;
+    text-align: center;
+    color: #cccccc;
+  }
 `;
+
+class Message extends Component {
+  render() {
+    return <MessageContent>{this.props.text}</MessageContent>;
+  }
+}
+
+class Users extends Component {
+  render() {
+    const { users } = this.props;
+
+    return (
+      <ul className="users">
+        {
+          users.map((user) => (
+            <li key={user.id} data-id={user.id}>
+              <Cube />
+              <span>{user.nickname}</span>
+              {
+                user.message
+                && <Message text={user.message} />
+              }
+            </li>
+          ))
+        }
+      </ul>
+    );
+  }
+};
 
 class Chat extends Component {
   constructor(props) {
@@ -347,8 +354,169 @@ class Chat extends Component {
           type="value"
           onKeyPress={this.onChangeValue}
           ref={this.input}
+          placeholder="Press enter to enter."
         />
       </ChatWrap>
+    );
+  }
+}
+
+const Keyword = styled.div`
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 250px;
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border-radius: 0 0 20px 20px;
+  background: rgba(0,0,0,.8);
+  color: #ffffff;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .1);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+`;
+
+const Word = styled.div`
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000000;
+  text-align: center;
+  background: #ffffff;
+  box-shadow: 0 0 20px #ffffff;
+  animation: word 2s infinite;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  @keyframes word {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+`;
+
+const ProblemKeyword = (props) => {
+  const { keyword, keywordCount } = props;
+  return (
+    <Keyword>
+      {keyword || <Word>?</Word>}
+    </Keyword>
+  );
+};
+
+const Colors = styled.ul`
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  z-index: 100;
+`;
+
+
+const ColorItem = styled.li`
+  display: flex;
+  overflow: hidden;
+  padding: 10px;
+  cursor: pointer;
+  transition: all .5s;
+
+  em {
+    display: inline-block;
+    font-size: 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-style: normal;
+    line-height: 40px;
+    opacity: 0;
+    transition: all .5s;
+  }
+
+  &:before {
+    display: inline-block;
+    content: '';
+    width: 40px;
+    height: 40px;
+    background: ${props => props.color};
+    border-radius: 10px;
+    box-shadow: 0 0 15px ${props => props.color};
+    position: relative;
+    z-index: 10;
+    transition: all .5s;
+  }
+
+  &.on,
+  &:hover {
+    background: #ffffff;
+    border-radius: 50px;
+
+    &:before {
+      border-radius: 50%;
+      transform: rotate(45deg);
+      box-shadow: 0 0 15px ${props => (props.color === '#ffffff') ? '#cccccc' : 'transparent'};
+    }
+
+    em {
+      margin-left: 10px;
+      opacity: 1;
+    }
+  }
+`;
+
+class ColorPicker extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selected: '0xfbbc05'
+    };
+  }
+
+  onClickColor(ev) {
+    const { onChangeColor } = this.props;
+    const selectedColor = ev.currentTarget.dataset.color;
+
+    this.setState({ selected: selectedColor });
+    onChangeColor(selectedColor);
+  }
+
+  render() {
+    const { colors } = this.props;
+
+    return (
+      <Colors>
+        {
+          colors.map((color) => {
+            const hexColor = color.slice(2, color.length);
+            return (
+              <ColorItem
+                data-color={color}
+                color={`#${hexColor}`}
+                key={color}
+                onClick={this.onClickColor.bind(this)}
+                className={(this.state.selected === color) ? 'on' : ''}
+              >
+                <em>{`#${hexColor}`}</em>
+              </ColorItem>
+            )
+          })
+        }
+      </Colors>
     );
   }
 }
@@ -363,11 +531,13 @@ class Game extends Component {
   }
 
   render() {
-    const { users, isStart, onSubmitMessage, submissionUser, id, createCube, socket } = this.props;
+    const { users, isStart,onChangeColor, colors, color, onSubmitMessage, submissionUser, id, createCube, socket } = this.props;
 
     return (
       <div className="game-wrap">
-        <ThreeScene isStart={isStart} submissionUser={submissionUser} id={id} createCube={createCube} socket={socket} />
+        <ProblemKeyword keyword="keyword" keywordCount={2} />
+        <ColorPicker colors={colors} onChangeColor={onChangeColor}  />
+        <ThreeScene isStart={isStart} color={color} submissionUser={submissionUser} id={id} createCube={createCube} socket={socket} />
         <Chat id={id} onSubmitMessage={onSubmitMessage} />
         <Users users={users} socket={socket} />
       </div>
@@ -385,9 +555,12 @@ class App extends Component {
       createCube,
       socket,
       onSubmitMessage,
-      receiveMessage
+      receiveMessage,
+      onChangeColor,
+      screen
     } = this.props;
     const { id } = user;
+    const { color, colors } = screen;
     const { isStart, submissionUser} = quiz;
 
     return (
@@ -403,6 +576,9 @@ class App extends Component {
                 socket={socket}
                 onSubmitMessage={onSubmitMessage}
                 receiveMessage={receiveMessage}
+                onChangeColor={onChangeColor}
+                color={color}
+                colors={colors}
               />
             : <Login onClickLogin={onLogin} />
         }

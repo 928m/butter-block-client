@@ -42,3 +42,10 @@ export const receiveMessage = (id, message) => {
     message
   };
 };
+
+export const colorSettings = (color) => {
+  return {
+    type: 'COLOR_SETTINGS',
+    color
+  };
+};
