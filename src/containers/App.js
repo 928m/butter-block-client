@@ -3,15 +3,36 @@ import {
   userInfoSettings,
   userListSettings,
   problemSubmissionInfoSettings,
-  problemInfoSettings
+  problemInfoSettings,
+  receiveMessage
 } from '../actions';
 import App from '../components/App/App';
 import io from 'socket.io-client';
 let socket;
 
 const mapStateToProps = (state) => {
-  console.log(state);
-  return {...state, socket};
+  const {
+    chat,
+    quiz,
+    user
+  } = state;
+  const userList = state.users;
+
+  const users = userList.map((user) => {
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      message: chat[user.id]
+    };
+  });
+
+  return {
+    chat,
+    quiz,
+    user,
+    users,
+    socket
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -39,6 +60,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     createCube(cubeObj) {
       socket.emit('create cube', cubeObj);
+    },
+    onSubmitMessage(id, message) {
+      socket.emit('message', { id, message });
+    },
+    receiveMessage(id, message) {
+      dispatch(receiveMessage(id, message));
     }
   };
 };

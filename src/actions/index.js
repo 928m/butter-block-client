@@ -34,3 +34,11 @@ export const problemInfoSettings = (problemLength, userId) => {
     submissionUser: userId
   };
 };
+
+export const receiveMessage = (id, message) => {
+  return {
+    type: 'RECEIVE_MESSAGE',
+    id,
+    message
+  };
+};

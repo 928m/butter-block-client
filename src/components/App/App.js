@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import './App.scss';
 import Login from '../block/Login';
 import Cube from '../elements/Cube';
+import styled from 'styled-components';
 import * as THREE from 'three';
 import threeOrbitControls from 'three-orbit-controls';
 import defaultShape from './defaultShape';
@@ -17,6 +18,7 @@ class ThreeScene extends Component{
     this.onDown = this.onDown.bind(this);
     this.screenRemove = this.screenRemove.bind(this);
     this.quizScreenRender = this.quizScreenRender.bind(this);
+    this.on = true;
   }
 
   quizScreenRender(cubes) {
@@ -35,6 +37,12 @@ class ThreeScene extends Component{
   }
 
   componentDidMount(){
+    const { socket } = this.props;
+
+    socket.on('cubes', (cubes) => {
+      this.quizScreenRender(cubes);
+    });
+
     this.init();
     this.quizScreenRender(defaultShape);
   }
@@ -109,14 +117,14 @@ class ThreeScene extends Component{
   }
 
   shouldComponentUpdate(nextProps) {
-    const { socket, isStart } = nextProps;
+    const { isStart } = nextProps;
 
-    isStart && this.screenRemove();
+    if (this.on && isStart) {
+      this.screenRemove();
+      this.on = false;
 
-    socket.on('cubes', (cubes) => {
-      this.quizScreenRender(cubes);
       return true;
-    });
+    }
 
     return false;
   }
@@ -203,29 +211,165 @@ class ThreeScene extends Component{
   }
 }
 
-const Users = (props) => {
-  return (
-    <ul className="users">
-      {
-        props.users.map((name, index) => (
-          <li key={`${name}${index}`}>
-            <Cube />
-            <span>{name}</span>
-          </li>
-        ))
-      }
-    </ul>
-  );
+const MessageContent = styled.p`
+  display: block;
+  position: absolute;
+  top: 30%;
+  left: 0;
+  z-index: 100;
+  padding: 10px 20px;
+  font-size: 12px;
+  border-radius: 15px 15px 0 15px;
+  background: rgba(255, 255, 255, .5);
+  color: #181818;
+  animation: message .5s;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+
+  @keyframes message {
+    0% { transform: translateY(20px); }
+    100% { transform: translateY(0); }
+  }
+`;
+
+class Message extends Component {
+  render() {
+    return <MessageContent>{this.props.text}</MessageContent>;
+  }
+}
+
+class Users extends Component {
+  render() {
+    const { users } = this.props;
+
+    return (
+      <ul className="users">
+        {
+          users.map((user) => (
+            <li key={user.id} data-id={user.id}>
+              <Cube />
+              <span>{user.nickname}</span>
+              {
+                user.message
+                && <Message text={user.message} />
+              }
+            </li>
+          ))
+        }
+      </ul>
+    );
+  }
 };
 
-class Game extends Component {
+const ChatWrap = styled.div`
+  display: block;
+  width: 40%;
+  height: 50px;
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  &:before {
+    display: block;
+    content: 'chat';
+    line-height: 50px;
+    text-transform: uppercase;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #000000;
+    letter-spacing: 2px;
+    position: absolute;
+    top: 0;
+    left: 20px;
+    z-index: 30;
+  }
+
+  &:after {
+    display: block;
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #000000;
+    position: absolute;
+    top: 50%;
+    left: -3px;
+    z-index: 20;
+    transform: translateY(-50%);
+  }
+`;
+
+const ChatInput = styled.input`
+  display: block;
+  width: 100%;
+  height: 50px;
+  font-size: 13px;
+  padding: 0 30px 0 70px;
+  box-sizing: border-box;
+  border-radius: 15px;
+  font-weight: 500;
+  color: #999999;
+  background: rgba(255, 255, 255, .8);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .05);
+  position: relative;
+  z-index: 10;
+  transition: all .5s;
+
+  &:focus {
+    background: rgba(252, 220, 75, .7);
+    color: #000000;
+  }
+`;
+
+class Chat extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onChangeValue = this.onChangeValue.bind(this);
+    this.input = React.createRef();
+  }
+
+  onChangeValue(ev) {
+    const value = ev.target.value;
+    const { onSubmitMessage, id } = this.props;
+
+    if (ev.key === 'Enter' && value) {
+      onSubmitMessage(id, value);
+      this.input.current.value = '';
+    }
+  }
+
   render() {
-    const { users, isStart, submissionUser, id, createCube, socket } = this.props;
+    return (
+      <ChatWrap>
+        <ChatInput
+          type="value"
+          onKeyPress={this.onChangeValue}
+          ref={this.input}
+        />
+      </ChatWrap>
+    );
+  }
+}
+
+class Game extends Component {
+  componentDidMount() {
+    const { socket, receiveMessage } = this.props;
+
+    socket.on('message', ({ id, message }) => {
+      receiveMessage(id, message);
+    });
+  }
+
+  render() {
+    const { users, isStart, onSubmitMessage, submissionUser, id, createCube, socket } = this.props;
 
     return (
       <div className="game-wrap">
         <ThreeScene isStart={isStart} submissionUser={submissionUser} id={id} createCube={createCube} socket={socket} />
-        <Users users={users} />
+        <Chat id={id} onSubmitMessage={onSubmitMessage} />
+        <Users users={users} socket={socket} />
       </div>
     );
   }
@@ -233,7 +377,16 @@ class Game extends Component {
 
 class App extends Component {
   render() {
-    const { user, onLogin, users, quiz, createCube, socket } = this.props;
+    const {
+      user,
+      onLogin,
+      users,
+      quiz,
+      createCube,
+      socket,
+      onSubmitMessage,
+      receiveMessage
+    } = this.props;
     const { id } = user;
     const { isStart, submissionUser} = quiz;
 
@@ -248,6 +401,8 @@ class App extends Component {
                 id={id}
                 createCube={createCube}
                 socket={socket}
+                onSubmitMessage={onSubmitMessage}
+                receiveMessage={receiveMessage}
               />
             : <Login onClickLogin={onLogin} />
         }
