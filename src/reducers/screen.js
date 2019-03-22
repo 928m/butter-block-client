@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
   color: 0xfbbc05,
-  colors: ['0x000000', '0xffffff', '0xf44336', '0xfbbc05', '0x006b76', '0x79bad2', '0x6d40bf']
+  colors: ['0x000000', '0xffffff', '0xf44336', '0xfbbc05', '0x006b76', '0x2777ce', '0x6d40bf']
 };
 
 const screen = (state = initialState, action) => {

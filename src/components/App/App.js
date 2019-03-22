@@ -21,21 +21,6 @@ class ThreeScene extends Component{
     this.on = true;
   }
 
-  quizScreenRender(cubes) {
-    cubes.forEach((item) => {
-      const cubeMaterial = new THREE.MeshLambertMaterial( { color: item.color } );
-      const voxel = new THREE.Mesh( this.cubeGeo, cubeMaterial );
-
-      voxel.position.x = item.position.x;
-      voxel.position.y = item.position.y;
-      voxel.position.z = item.position.z;
-
-      this.scene.add( voxel );
-    });
-
-    this.renderScene();
-  }
-
   componentDidMount(){
     const { socket } = this.props;
 
@@ -49,6 +34,19 @@ class ThreeScene extends Component{
 
   componentWillUnmount(){
     this.end();
+  }
+
+  shouldComponentUpdate(nextProps) {
+    const { isStart, isPass } = nextProps;
+
+    if ((this.on && isStart) || isPass) {
+      this.screenRemove();
+      this.on = false;
+
+      return true;
+    }
+
+    return false;
   }
 
   end() {
@@ -116,17 +114,19 @@ class ThreeScene extends Component{
     this.renderScene();
   }
 
-  shouldComponentUpdate(nextProps) {
-    const { isStart } = nextProps;
+  quizScreenRender(cubes) {
+    cubes.forEach((item) => {
+      const cubeMaterial = new THREE.MeshLambertMaterial( { color: item.color } );
+      const voxel = new THREE.Mesh( this.cubeGeo, cubeMaterial );
 
-    if (this.on && isStart) {
-      this.screenRemove();
-      this.on = false;
+      voxel.position.x = item.position.x;
+      voxel.position.y = item.position.y;
+      voxel.position.z = item.position.z;
 
-      return true;
-    }
+      this.scene.add( voxel );
+    });
 
-    return false;
+    this.renderScene();
   }
 
   renderScene() {
@@ -306,22 +306,114 @@ class Message extends Component {
   }
 }
 
+const UserList = styled.li`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 20px 0;
+  margin: 30px 0 0;
+  position: relative;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &.me {
+    span {
+      display: block;
+      text-align: center;
+      position: relative;
+
+      &:before {
+        display: inline-block;
+        content: 'me';
+        background: #181818;
+        font-size: 8px;
+        font-weight: 500;
+        padding: 5px;
+        color: #ffffff;
+        border-radius: 4px;
+        margin: 0 10px 0 0;
+      }
+    }
+  }
+
+  &.on {
+    &:before {
+      display: block;
+      content: '';
+      width: 120px;
+      height: 120px;
+      border-top: 5px solid #ffffff;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-radius: 50%;
+      position: absolute;
+      top: -5px;
+      left: 30%;
+      animation: rt 2s infinite linear;
+    }
+
+    @keyframes rt {
+      0% {
+        transform: rotate(0);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  }
+
+  .cube-wrap {
+    display: inline-block;
+    transform: scale(0.7) translateX(50%);
+    animation: enter .6s ease-in-out;
+  }
+
+  @keyframes enter {
+    0% {
+      transform: scale(0.1) translateX(50%);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    80% {
+      transform: scale(0.8) translateX(50%);
+    }
+    100% {
+      transform: scale(0.7) translateX(50%);
+    }
+  }
+
+  span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+`;
+
 class Users extends Component {
   render() {
-    const { users } = this.props;
+    const { users, submissionUser, id } = this.props;
 
     return (
       <ul className="users">
         {
           users.map((user) => (
-            <li key={user.id} data-id={user.id}>
+            <UserList
+              key={user.id}
+              data-id={user.id}
+              className={`${(submissionUser === user.id) && 'on'} ${(id === user.id) && 'me'}`}
+            >
               <Cube />
               <span>{user.nickname}</span>
-              {
-                user.message
-                && <Message text={user.message} />
-              }
-            </li>
+              {user.message && <Message text={user.message} />}
+            </UserList>
           ))
         }
       </ul>
@@ -400,15 +492,9 @@ const Word = styled.div`
   }
 
   @keyframes word {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.2);
-    }
-    100% {
-      transform: scale(1);
-    }
+    0% {transform: scale(1);}
+    50% {transform: scale(1.2);}
+    100% {transform: scale(1);}
   }
 `;
 
@@ -427,7 +513,6 @@ const Colors = styled.ul`
   left: 40px;
   z-index: 100;
 `;
-
 
 const ColorItem = styled.li`
   display: flex;
@@ -523,29 +608,109 @@ class ColorPicker extends Component {
 
 class Game extends Component {
   componentDidMount() {
-    const { socket, receiveMessage } = this.props;
+    const { socket, receiveMessage, onCorrectAnswer } = this.props;
 
     socket.on('message', ({ id, message }) => {
       receiveMessage(id, message);
     });
+
+    socket.on('pass', ({ id, solution, userNickName }) => {
+      onCorrectAnswer(id, solution, userNickName);
+    });
+
+    socket.on('end', (users) => {
+      alert('end!!');
+      console.log('users : ', users);
+    });
   }
 
   render() {
-    const { users, isStart,onChangeColor, colors, color, onSubmitMessage, submissionUser, id, createCube, socket } = this.props;
+    const {
+      users,
+      isStart,
+      onChangeColor,
+      colors,
+      color,
+      onSubmitMessage,
+      submissionUser,
+      id,
+      createCube,
+      socket,
+      isPass
+    } = this.props;
 
     return (
       <div className="game-wrap">
-        <ProblemKeyword keyword="keyword" keywordCount={2} />
-        <ColorPicker colors={colors} onChangeColor={onChangeColor}  />
-        <ThreeScene isStart={isStart} color={color} submissionUser={submissionUser} id={id} createCube={createCube} socket={socket} />
+        {
+          isStart
+          && <ProblemKeyword keyword="keyword" keywordCount={2} />
+        }
+        {
+          (submissionUser === id)
+          && <ColorPicker colors={colors} onChangeColor={onChangeColor} />
+        }
+        <ThreeScene
+          isStart={isStart}
+          color={color}
+          submissionUser={submissionUser}
+          id={id}
+          createCube={createCube}
+          socket={socket}
+          isPass={isPass}
+        />
         <Chat id={id} onSubmitMessage={onSubmitMessage} />
-        <Users users={users} socket={socket} />
+        <Users users={users} socket={socket} submissionUser={submissionUser} id={id} />
       </div>
     );
   }
 }
 
+const PopupWrap = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0, rgba(0,0,0,.5) 0%, #000000 104%);
+  color: #ffffff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popup 1s;
+
+  @keyframes popup {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+`;
+
+const Popup = (props) => {
+  return (
+    <PopupWrap>
+      <p>{props.type}</p>
+      <p>{props.user}</p>
+      <p>{props.correctNickName}</p>
+      <p>{props.quizSolution}</p>
+    </PopupWrap>
+  );
+};
+
 class App extends Component {
+  // shouldComponentUpdate(nextProps) {
+  //   const { isStart } = this.props.quiz;
+  //   const nextIsStart = nextProps.quiz.isStart;
+
+  //   if (isStart !== nextIsStart) {
+  //     this.setState({ firstPopup: true });
+  //   } else if (this.state.firstPopup) {
+  //     this.setState({ firstPopup: false });
+  //   }
+
+  //   return true;
+  // }
+
   render() {
     const {
       user,
@@ -557,11 +722,15 @@ class App extends Component {
       onSubmitMessage,
       receiveMessage,
       onChangeColor,
-      screen
+      onCorrectAnswer,
+      screen,
+      correct,
+      isPass
     } = this.props;
     const { id } = user;
     const { color, colors } = screen;
     const { isStart, submissionUser} = quiz;
+    const { correctUserId, correctNickName, quizSolution } = correct;
 
     return (
       <Fragment>
@@ -579,8 +748,18 @@ class App extends Component {
                 onChangeColor={onChangeColor}
                 color={color}
                 colors={colors}
+                onCorrectAnswer={onCorrectAnswer}
+                isPass={isPass}
               />
             : <Login onClickLogin={onLogin} />
+        }
+        {
+          isPass
+          && <Popup
+              user={submissionUser}
+              correctNickName={correctNickName}
+              quizSolution={quizSolution}
+            />
         }
       </Fragment>
     );

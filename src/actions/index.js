@@ -49,3 +49,18 @@ export const colorSettings = (color) => {
     color
   };
 };
+
+export const correctAnswer = (id, solution, nickname) => {
+  return {
+    type: 'CORRECT',
+    id,
+    solution,
+    nickname
+  };
+};
+
+export const initializeCorrectAnswerInformation = () => {
+  return {
+    type: 'INITIALIZE_CORRECT_ANSWER_INFORMATION'
+  };
+};

@@ -5,7 +5,9 @@ import {
   problemSubmissionInfoSettings,
   problemInfoSettings,
   receiveMessage,
-  colorSettings
+  colorSettings,
+  correctAnswer,
+  initializeCorrectAnswerInformation
 } from '../actions';
 import App from '../components/App/App';
 import io from 'socket.io-client';
@@ -16,17 +18,20 @@ const mapStateToProps = (state) => {
     chat,
     quiz,
     user,
-    screen
+    screen,
+    correct
   } = state;
   const userList = state.users;
+  const isPass = correct.isPass;
+  const users = userList.map((user) => ({
+    id: user.id,
+    nickname: user.nickname,
+    message: chat[user.id]
+  }));
 
-  const users = userList.map((user) => {
-    return {
-      id: user.id,
-      nickname: user.nickname,
-      message: chat[user.id]
-    };
-  });
+  correct.correctUserId = correct.id;
+  correct.correctNickName = correct.nickname;
+  correct.quizSolution = correct.solution;
 
   return {
     chat,
@@ -34,6 +39,8 @@ const mapStateToProps = (state) => {
     user,
     users,
     screen,
+    correct,
+    isPass,
     socket
   };
 };
@@ -54,10 +61,12 @@ const mapDispatchToProps = (dispatch) => {
       });
 
       socket.on('start', ({ userId, problemLength }) => {
+        console.log('problem length : ',problemLength);
         dispatch(problemInfoSettings(problemLength, userId));
       });
 
       socket.on('submission', (problem) => {
+        console.log('submission : ', problem);
         dispatch(problemSubmissionInfoSettings(problem));
       });
     },
@@ -76,6 +85,13 @@ const mapDispatchToProps = (dispatch) => {
     },
     onChangeColor(color) {
       dispatch(colorSettings(Number(color)));
+    },
+    onCorrectAnswer(id, solution, userNickName) {
+      dispatch(correctAnswer(id, solution, userNickName));
+
+      setTimeout(() => {
+        dispatch(initializeCorrectAnswerInformation());
+      }, 4000);
     }
   };
 };
