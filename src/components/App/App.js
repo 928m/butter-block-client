@@ -6,6 +6,9 @@ import styled from 'styled-components';
 import * as THREE from 'three';
 import threeOrbitControls from 'three-orbit-controls';
 import defaultShape from './defaultShape';
+import bgSound from '../../audio/bg.mp3';
+import correctSound from '../../audio/correct.mp3';
+import createCubeSounc from '../../audio/createCube.mp3';
 const OrbitControls = threeOrbitControls(THREE);
 
 class ThreeScene extends Component{
@@ -175,12 +178,15 @@ class ThreeScene extends Component{
     if ( this.intersects.length > 0 ) {
       if ( this.intersect.object !== this.plane ) {
         const removeIndex = this.objects.indexOf( this.intersect.object );
-        const removeCubeId = this.objects[removeIndex].uuid; // 에러남..
 
         removeCube(removeIndex);
         this.scene.remove( this.intersect.object );
         this.objects.splice( removeIndex, 1 );
-        delete this.cubes[removeCubeId];
+
+        if (this.objects[removeIndex]) {
+          const removeCubeId = this.objects[removeIndex].uuid;
+          delete this.cubes[removeCubeId];
+        }
       }
     }
   }
@@ -198,34 +204,27 @@ class ThreeScene extends Component{
     this.cubeMaterial = new THREE.MeshLambertMaterial( { color: this.props.color } );
 
     if ( this.intersects.length > 0 ) {
-      this.intersect = this.intersects[ 0 ];
-      // delete cube
-      if ( this.isShiftDown ) {
-        if ( this.intersect.object !== this.plane ) {
-          this.scene.remove( this.intersect.object );
-          this.objects.splice( this.objects.indexOf( this.intersect.object ), 1 );
-        }
-        // create cube
-      } else {
-        const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial );
-        voxel.position.copy( this.intersect.point ).add( this.intersect.face.normal );
-        voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
+      this.intersect = this.intersects[0];
 
-        this.scene.add( voxel );
-        this.objects.push( voxel );
+      const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial );
 
-        this.cubes[voxel.uuid] = {
-          position: voxel.position,
-          color: this.props.color
-        };
+      voxel.position.copy( this.intersect.point ).add( this.intersect.face.normal );
+      voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
 
-        createCube({
-          position: voxel.position,
-          color: this.props.color
-        });
+      this.scene.add( voxel );
+      this.objects.push( voxel );
 
-        this.renderScene();
-      }
+      this.cubes[voxel.uuid] = {
+        position: voxel.position,
+        color: this.props.color
+      };
+
+      createCube({
+        position: voxel.position,
+        color: this.props.color
+      });
+
+      this.renderScene();
     }
   }
 
@@ -236,15 +235,17 @@ class ThreeScene extends Component{
 
   render() {
     return(
-      <div className="screen">
-        <div
-          style={{ width: '100%', height: '100vh' }}
-          ref={(mount) => { this.mount = mount }}
-          onMouseMove={this.onMove}
-          onClick={this.onDown}
-          onContextMenu={this.onRemoveCube}
-        />
-      </div>
+      <Fragment>
+        <div className="screen">
+          <div
+            style={{ width: '100%', height: '100vh' }}
+            ref={(mount) => { this.mount = mount }}
+            onMouseMove={this.onMove}
+            onClick={this.onDown}
+            onContextMenu={this.onRemoveCube}
+          />
+        </div>
+      </Fragment>
     )
   }
 }
@@ -391,6 +392,7 @@ const UserList = styled.li`
       position: absolute;
       top: -5px;
       left: 30%;
+      opacity: .5;
       animation: rt 2s infinite linear;
     }
 
@@ -773,6 +775,12 @@ class App extends Component {
 
     return (
       <Fragment>
+        {/* <audio ref="audio_tag" src={createCubeSounc} autoPlay /> */}
+        <audio ref="audio_tag" src={bgSound} loop autoPlay />
+        {
+          isPass
+          && <audio ref="audio_tag" src={correctSound} autoPlay />
+        }
         {
           user.id
             ? <Game
