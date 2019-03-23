@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 const initialState = {
   isStart: false,
   problem: '',
-  length: 0,
+  problemLength: 0,
   submissionUser: '',
   isPass: false
 };
@@ -26,6 +26,7 @@ const quiz = (state = initialState, action) => {
       newQuiz.isStart = true;
       newQuiz.problemLength = problemLength;
       newQuiz.submissionUser = submissionUser;
+      debugger
 
       return newQuiz;
     default:

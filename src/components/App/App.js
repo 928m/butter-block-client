@@ -18,6 +18,7 @@ class ThreeScene extends Component{
     this.onDown = this.onDown.bind(this);
     this.screenRemove = this.screenRemove.bind(this);
     this.quizScreenRender = this.quizScreenRender.bind(this);
+    this.onRemoveCube = this.onRemoveCube.bind(this);
     this.on = true;
   }
 
@@ -28,8 +29,12 @@ class ThreeScene extends Component{
       this.quizScreenRender(cubes);
     });
 
+    socket.on('delete cube', (removeIndex) => {
+      this.quizScreenRender(null, removeIndex);
+    });
+
     this.init();
-    this.quizScreenRender(defaultShape);
+    // this.quizScreenRender(defaultShape);
   }
 
   componentWillUnmount(){
@@ -57,6 +62,7 @@ class ThreeScene extends Component{
     const width = this.mount.clientWidth;
     const height = this.mount.clientHeight;
     this.objects = [];
+    this.cubes = {};
     //ADD SCENE
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color( 0xf0f0f0 );
@@ -77,7 +83,7 @@ class ThreeScene extends Component{
     this.cubeMaterial = new THREE.MeshLambertMaterial( { color: this.props.color } );
 
     // grid
-    const gridHelper = new THREE.GridHelper( 1000, 20 );
+    const gridHelper = new THREE.GridHelper( 1000, 20, 0xffffff, 0xffffff );
     this.scene.add( gridHelper );
 
     //
@@ -106,7 +112,7 @@ class ThreeScene extends Component{
     this.mount.appendChild(this.renderer.domElement);
 
     // controls
-    this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+    this.controls = new OrbitControls( this.camera, this.mount );
     this.controls.maxPolarAngle = Math.PI * 0.5;
     this.controls.minDistance = 1000;
     this.controls.maxDistance = 5000;
@@ -114,17 +120,23 @@ class ThreeScene extends Component{
     this.renderScene();
   }
 
-  quizScreenRender(cubes) {
-    cubes.forEach((item) => {
-      const cubeMaterial = new THREE.MeshLambertMaterial( { color: item.color } );
+  quizScreenRender(cube, deleteCubeIndex) {
+    if (deleteCubeIndex) {
+      const deleteCube = this.objects[deleteCubeIndex];
+
+      this.scene.remove(deleteCube);
+      this.objects.splice(deleteCubeIndex, 1);
+    } else {
+      const cubeMaterial = new THREE.MeshLambertMaterial( { color: cube.color } );
       const voxel = new THREE.Mesh( this.cubeGeo, cubeMaterial );
 
-      voxel.position.x = item.position.x;
-      voxel.position.y = item.position.y;
-      voxel.position.z = item.position.z;
+      voxel.position.x = cube.position.x;
+      voxel.position.y = cube.position.y;
+      voxel.position.z = cube.position.z;
 
+      this.objects.push( voxel );
       this.scene.add( voxel );
-    });
+    }
 
     this.renderScene();
   }
@@ -153,6 +165,26 @@ class ThreeScene extends Component{
     this.renderScene();
   }
 
+  onRemoveCube() {
+    const { isStart, submissionUser, id, removeCube } = this.props;
+
+    if (!isStart || submissionUser !== id) {
+      return false;
+    }
+
+    if ( this.intersects.length > 0 ) {
+      if ( this.intersect.object !== this.plane ) {
+        const removeIndex = this.objects.indexOf( this.intersect.object );
+        const removeCubeId = this.objects[removeIndex].uuid; // 에러남..
+
+        removeCube(removeIndex);
+        this.scene.remove( this.intersect.object );
+        this.objects.splice( removeIndex, 1 );
+        delete this.cubes[removeCubeId];
+      }
+    }
+  }
+
   onDown(event) {
     const { isStart, submissionUser, id, createCube } = this.props;
 
@@ -179,13 +211,18 @@ class ThreeScene extends Component{
         voxel.position.copy( this.intersect.point ).add( this.intersect.face.normal );
         voxel.position.divideScalar( 50 ).floor().multiplyScalar( 50 ).addScalar( 25 );
 
+        this.scene.add( voxel );
+        this.objects.push( voxel );
+
+        this.cubes[voxel.uuid] = {
+          position: voxel.position,
+          color: this.props.color
+        };
+
         createCube({
           position: voxel.position,
           color: this.props.color
         });
-
-        this.scene.add( voxel );
-        this.objects.push( voxel );
 
         this.renderScene();
       }
@@ -205,6 +242,7 @@ class ThreeScene extends Component{
           ref={(mount) => { this.mount = mount }}
           onMouseMove={this.onMove}
           onClick={this.onDown}
+          onContextMenu={this.onRemoveCube}
         />
       </div>
     )
@@ -464,7 +502,6 @@ const Keyword = styled.div`
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 3px;
-  text-transform: uppercase;
   border-radius: 0 0 20px 20px;
   background: rgba(0,0,0,.8);
   color: #ffffff;
@@ -499,10 +536,14 @@ const Word = styled.div`
 `;
 
 const ProblemKeyword = (props) => {
-  const { keyword, keywordCount } = props;
+  const { keyword, keywordLength, submissionUser, id } = props;
   return (
     <Keyword>
-      {keyword || <Word>?</Word>}
+      {
+        (keyword && submissionUser === id)
+          ? `${keyword}`
+          : `keyword length is ${keywordLength}.`
+      }
     </Keyword>
   );
 };
@@ -636,14 +677,22 @@ class Game extends Component {
       id,
       createCube,
       socket,
-      isPass
+      isPass,
+      quizKeywordLength,
+      quizKeyword,
+      removeCube
     } = this.props;
 
     return (
       <div className="game-wrap">
         {
           isStart
-          && <ProblemKeyword keyword="keyword" keywordCount={2} />
+          && <ProblemKeyword
+              keyword={quizKeyword}
+              keywordLength={quizKeywordLength}
+              submissionUser={submissionUser}
+              id={id}
+            />
         }
         {
           (submissionUser === id)
@@ -655,6 +704,7 @@ class Game extends Component {
           submissionUser={submissionUser}
           id={id}
           createCube={createCube}
+          removeCube={removeCube}
           socket={socket}
           isPass={isPass}
         />
@@ -698,19 +748,6 @@ const Popup = (props) => {
 };
 
 class App extends Component {
-  // constructor(props) {
-  //   super(props);
-
-  //   this.state = {
-  //     isPopup: false
-  //   };
-  // }
-
-  // componentWillReceiveProps(nextProps) {
-  //   console.log(nextProps.quiz.isStart , '< next start');
-  //   console.log(this.props.quiz.isStart, '< current start');
-  // }
-
   render() {
     const {
       user,
@@ -718,6 +755,7 @@ class App extends Component {
       users,
       quiz,
       createCube,
+      removeCube,
       socket,
       onSubmitMessage,
       receiveMessage,
@@ -730,7 +768,7 @@ class App extends Component {
     } = this.props;
     const { id } = user;
     const { color, colors } = screen;
-    const { isStart, submissionUser } = quiz;
+    const { isStart, submissionUser, problem, problemLength } = quiz;
     const { correctUserId, correctNickName, quizSolution } = correct;
 
     return (
@@ -742,6 +780,7 @@ class App extends Component {
                 isStart={isStart}
                 submissionUser={submissionUser}
                 id={id}
+                removeCube={removeCube}
                 createCube={createCube}
                 socket={socket}
                 onSubmitMessage={onSubmitMessage}
@@ -751,6 +790,8 @@ class App extends Component {
                 colors={colors}
                 onCorrectAnswer={onCorrectAnswer}
                 isPass={isPass}
+                quizKeywordLength={problemLength}
+                quizKeyword={problem}
               />
             : <Login onClickLogin={onLogin} />
         }

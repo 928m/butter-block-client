@@ -74,12 +74,14 @@ const mapDispatchToProps = (dispatch) => {
       });
 
       socket.on('submission', (problem) => {
-        console.log('submission : ', problem);
         dispatch(problemSubmissionInfoSettings(problem));
       });
     },
     createCube(cubeObj) {
       socket.emit('create cube', cubeObj);
+    },
+    removeCube(removeCubeIndex) {
+      socket.emit('remove cube', removeCubeIndex);
     },
     onSubmitMessage(id, message) {
       socket.emit('message', { id, message });
@@ -100,7 +102,7 @@ const mapDispatchToProps = (dispatch) => {
 
       setTimeout(() => {
         dispatch(closePopup());
-        // dispatch(initializeCorrectAnswerInformation());
+        dispatch(initializeCorrectAnswerInformation());
       }, 4000);
     }
   };
