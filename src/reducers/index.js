@@ -5,6 +5,7 @@ import quiz from './quiz';
 import chat from './chat';
 import screen from './screen';
 import correct from './correct';
+import popup from './popup';
 
 export default combineReducers({
   user,
@@ -12,5 +13,6 @@ export default combineReducers({
   quiz,
   chat,
   screen,
-  correct
+  correct,
+  popup
 });

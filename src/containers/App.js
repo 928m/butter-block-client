@@ -7,7 +7,9 @@ import {
   receiveMessage,
   colorSettings,
   correctAnswer,
-  initializeCorrectAnswerInformation
+  initializeCorrectAnswerInformation,
+  closePopup,
+  openPopup
 } from '../actions';
 import App from '../components/App/App';
 import io from 'socket.io-client';
@@ -19,7 +21,8 @@ const mapStateToProps = (state) => {
     quiz,
     user,
     screen,
-    correct
+    correct,
+    popup
   } = state;
   const userList = state.users;
   const isPass = correct.isPass;
@@ -41,7 +44,8 @@ const mapStateToProps = (state) => {
     screen,
     correct,
     isPass,
-    socket
+    socket,
+    popup
   };
 };
 
@@ -61,8 +65,12 @@ const mapDispatchToProps = (dispatch) => {
       });
 
       socket.on('start', ({ userId, problemLength }) => {
-        console.log('problem length : ',problemLength);
         dispatch(problemInfoSettings(problemLength, userId));
+        dispatch(openPopup());
+
+        setTimeout(() => {
+          dispatch(closePopup());
+        }, 4000);
       });
 
       socket.on('submission', (problem) => {
@@ -88,9 +96,11 @@ const mapDispatchToProps = (dispatch) => {
     },
     onCorrectAnswer(id, solution, userNickName) {
       dispatch(correctAnswer(id, solution, userNickName));
+      dispatch(openPopup());
 
       setTimeout(() => {
-        dispatch(initializeCorrectAnswerInformation());
+        dispatch(closePopup());
+        // dispatch(initializeCorrectAnswerInformation());
       }, 4000);
     }
   };

@@ -64,3 +64,15 @@ export const initializeCorrectAnswerInformation = () => {
     type: 'INITIALIZE_CORRECT_ANSWER_INFORMATION'
   };
 };
+
+export const openPopup = () => {
+  return {
+    type: 'OPEN_POPUP'
+  };
+};
+
+export const closePopup = () => {
+  return {
+    type: 'CLOSE_POPUP'
+  };
+};

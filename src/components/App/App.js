@@ -698,17 +698,17 @@ const Popup = (props) => {
 };
 
 class App extends Component {
-  // shouldComponentUpdate(nextProps) {
-  //   const { isStart } = this.props.quiz;
-  //   const nextIsStart = nextProps.quiz.isStart;
+  // constructor(props) {
+  //   super(props);
 
-  //   if (isStart !== nextIsStart) {
-  //     this.setState({ firstPopup: true });
-  //   } else if (this.state.firstPopup) {
-  //     this.setState({ firstPopup: false });
-  //   }
+  //   this.state = {
+  //     isPopup: false
+  //   };
+  // }
 
-  //   return true;
+  // componentWillReceiveProps(nextProps) {
+  //   console.log(nextProps.quiz.isStart , '< next start');
+  //   console.log(this.props.quiz.isStart, '< current start');
   // }
 
   render() {
@@ -725,11 +725,12 @@ class App extends Component {
       onCorrectAnswer,
       screen,
       correct,
-      isPass
+      isPass,
+      popup
     } = this.props;
     const { id } = user;
     const { color, colors } = screen;
-    const { isStart, submissionUser} = quiz;
+    const { isStart, submissionUser } = quiz;
     const { correctUserId, correctNickName, quizSolution } = correct;
 
     return (
@@ -754,7 +755,7 @@ class App extends Component {
             : <Login onClickLogin={onLogin} />
         }
         {
-          isPass
+          popup
           && <Popup
               user={submissionUser}
               correctNickName={correctNickName}

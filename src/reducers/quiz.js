@@ -19,7 +19,6 @@ const quiz = (state = initialState, action) => {
 
   switch (type) {
     case 'PROBLEM_SUBMISSION_INFO_SETTINGS':
-      newQuiz.isStart = true;
       newQuiz.problem = problem;
 
       return newQuiz;

@@ -12,8 +12,7 @@ const correct = (state = initialState, action) => {
     type,
     nickname,
     id,
-    solution,
-    isPass
+    solution
   } = action;
   const newCorrect = cloneDeep(state);
 
