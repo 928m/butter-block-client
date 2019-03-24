@@ -8,8 +8,19 @@ import threeOrbitControls from 'three-orbit-controls';
 import defaultShape from './defaultShape';
 import bgSound from '../../audio/bg.mp3';
 import correctSound from '../../audio/correct.mp3';
-import createCubeSounc from '../../audio/createCube.mp3';
+import createCubeSound from '../../audio/createCube.mp3';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCubes, faCrown, faSyncAlt, faPalette, faEraser, faUserEdit } from '@fortawesome/free-solid-svg-icons'
+
 const OrbitControls = threeOrbitControls(THREE);
+
+library.add(faCrown);
+library.add(faCubes);
+library.add(faSyncAlt);
+library.add(faPalette);
+library.add(faEraser);
+library.add(faUserEdit);
 
 class ThreeScene extends Component{
   constructor(props) {
@@ -86,7 +97,7 @@ class ThreeScene extends Component{
     this.cubeMaterial = new THREE.MeshLambertMaterial( { color: this.props.color } );
 
     // grid
-    const gridHelper = new THREE.GridHelper( 1000, 20, 0xffffff, 0xffffff );
+    const gridHelper = new THREE.GridHelper( 1000, 20, 0xb4c1cb, 0xb4c1cb );
     this.scene.add( gridHelper );
 
     //
@@ -149,9 +160,9 @@ class ThreeScene extends Component{
   }
 
   onMove(event) {
-    const { isStart, submissionUser, id } = this.props;
+    const { isStart, submissionUserId, id } = this.props;
 
-    if (isStart && submissionUser === id) {
+    if (isStart && (submissionUserId === id)) {
       this.scene.add( this.rollOverMesh );
     }
 
@@ -169,9 +180,9 @@ class ThreeScene extends Component{
   }
 
   onRemoveCube() {
-    const { isStart, submissionUser, id, removeCube } = this.props;
+    const { isStart, submissionUserId, id, removeCube } = this.props;
 
-    if (!isStart || submissionUser !== id) {
+    if (!isStart || submissionUserId !== id) {
       return false;
     }
 
@@ -192,9 +203,9 @@ class ThreeScene extends Component{
   }
 
   onDown(event) {
-    const { isStart, submissionUser, id, createCube } = this.props;
+    const { isStart, submissionUserId, id, createCube } = this.props;
 
-    if (!isStart || submissionUser !== id) {
+    if (!isStart || submissionUserId !== id) {
       return false;
     }
 
@@ -385,7 +396,7 @@ const UserList = styled.li`
       content: '';
       width: 120px;
       height: 120px;
-      border-top: 5px solid #ffffff;
+      border-top: 5px solid #ff3aa6;
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
       border-radius: 50%;
@@ -434,12 +445,13 @@ const UserList = styled.li`
     text-align: center;
     font-size: 14px;
     font-weight: 700;
+    margin: 10px 0 0;
   }
 `;
 
 class Users extends Component {
   render() {
-    const { users, submissionUser, id } = this.props;
+    const { users, submissionUserId, id } = this.props;
 
     return (
       <ul className="users">
@@ -448,7 +460,7 @@ class Users extends Component {
             <UserList
               key={user.id}
               data-id={user.id}
-              className={`${(submissionUser === user.id) && 'on'} ${(id === user.id) && 'me'}`}
+              className={`${(submissionUserId === user.id) && 'on'} ${(id === user.id) && 'me'}`}
             >
               <Cube />
               <span>{user.nickname}</span>
@@ -513,36 +525,12 @@ const Keyword = styled.div`
   justify-content: space-around;
 `;
 
-const Word = styled.div`
-  width: 25px;
-  height: 25px;
-  line-height: 25px;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: 700;
-  color: #000000;
-  text-align: center;
-  background: #ffffff;
-  box-shadow: 0 0 20px #ffffff;
-  animation: word 2s infinite;
-
-  &:first-child {
-    margin-left: 0;
-  }
-
-  @keyframes word {
-    0% {transform: scale(1);}
-    50% {transform: scale(1.2);}
-    100% {transform: scale(1);}
-  }
-`;
-
 const ProblemKeyword = (props) => {
-  const { keyword, keywordLength, submissionUser, id } = props;
+  const { keyword, keywordLength, submissionUserId, id } = props;
   return (
     <Keyword>
       {
-        (keyword && submissionUser === id)
+        (keyword && submissionUserId === id)
           ? `${keyword}`
           : `keyword length is ${keywordLength}.`
       }
@@ -611,7 +599,7 @@ class ColorPicker extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected: '0xfbbc05'
+      selected: this.props.color
     };
   }
 
@@ -675,7 +663,7 @@ class Game extends Component {
       colors,
       color,
       onSubmitMessage,
-      submissionUser,
+      submissionUserId,
       id,
       createCube,
       socket,
@@ -692,18 +680,18 @@ class Game extends Component {
           && <ProblemKeyword
               keyword={quizKeyword}
               keywordLength={quizKeywordLength}
-              submissionUser={submissionUser}
+              submissionUserId={submissionUserId}
               id={id}
             />
         }
         {
-          (submissionUser === id)
-          && <ColorPicker colors={colors} onChangeColor={onChangeColor} />
+          (submissionUserId === id)
+          && <ColorPicker colors={colors} onChangeColor={onChangeColor} color={color} />
         }
         <ThreeScene
           isStart={isStart}
           color={color}
-          submissionUser={submissionUser}
+          submissionUserId={submissionUserId}
           id={id}
           createCube={createCube}
           removeCube={removeCube}
@@ -711,7 +699,7 @@ class Game extends Component {
           isPass={isPass}
         />
         <Chat id={id} onSubmitMessage={onSubmitMessage} />
-        <Users users={users} socket={socket} submissionUser={submissionUser} id={id} />
+        <Users users={users} socket={socket} submissionUserId={submissionUserId} id={id} />
       </div>
     );
   }
@@ -728,9 +716,14 @@ const PopupWrap = styled.div`
   color: #ffffff;
   font-size: 20px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   animation: popup 1s;
+
+  p {
+    width: 100%;
+  }
 
   @keyframes popup {
     0% { opacity: 0; }
@@ -738,13 +731,197 @@ const PopupWrap = styled.div`
   }
 `;
 
+const PopupInner = styled.div`
+  padding: 50px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .7);
+  color: #181818;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+`;
+
+const PopContent = styled.div`
+  display: flex;
+  min-width: 150px;
+  flex-wrap: wrap;
+  height: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  position: relative;
+
+  .cube-wrap {
+    transform: translateX(50%);
+  }
+
+  ul {
+    display: flex;
+    width: 100%;
+
+    li {
+      min-width: 130px;
+      text-align: center;
+
+      .icon {
+        display: inline-block;
+        font-size: 30px;
+        padding: 10px;
+        color: #181818;
+        border: 3px solid #181818;
+        border-radius: 5px;
+      }
+
+      span {
+        display: block;
+        text-align: center;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin: 10px 0 0;
+      }
+
+      b {
+        display: inline-block;
+        text-align: center;
+        line-height: 20px;
+        font-size: 13px;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin: 10px 0 0;
+        background: #f6d365;
+        padding: 0 5px;
+      }
+    }
+  }
+
+  .quiz-owner {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+    .cube-wrap {
+      transform: scale(0.7) translateX(40px);
+      margin: 0 0 15px;
+    }
+
+    span {
+      display: inline-block;
+      font-size: 20px;
+      font-weight: 700;
+      width: 100%;
+      text-align: center;
+      color: #494e51;
+      letter-spacing: 2px;
+    }
+  }
+
+  .correctUser {
+    padding: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+
+    .cube-wrap {
+      transform: translate(50%, 17px);
+    }
+
+    p {
+      font-weight: 700;
+      font-size: 30px;
+      letter-spacing: 3px;
+      margin: 50px 0 0;
+    }
+  }
+`;
+
+const PopupTitle = styled.h1`
+  font-size: 15px;
+  font-weight: 700;
+  padding: 0 25px;
+  line-height: 40px;
+  border-radius: 40px;
+  letter-spacing: 3px;
+  background: linear-gradient(145deg, #f6d365, #fda085);
+  color: #ffffff;
+  text-transform: uppercase;
+  position: fixed;
+  top: -20px;
+  left: 50%;
+  transform: translate(-50%);
+`;
+
 const Popup = (props) => {
+  const {
+    id,
+    submissionUserNickName,
+    submissionUserId,
+    quizSolution,
+    correctNickName
+  } = props;
+
   return (
-    <PopupWrap>
-      <p>{props.type}</p>
-      <p>{props.user}</p>
-      <p>{props.correctNickName}</p>
-      <p>{props.quizSolution}</p>
+    <PopupWrap color={'linear-gradient(145deg,#f6d365,#fda085)'}>
+      <PopupInner>
+        {
+          !correctNickName
+          ? (
+            <PopContent>
+              <PopupTitle>
+                {
+                  (submissionUserId === id) ? 'how to use' : 'drawer'
+                }
+              </PopupTitle>
+              {
+                (submissionUserId === id)
+                ? (
+                  <ul>
+                    <li>
+                      <FontAwesomeIcon icon="cubes" className="icon" />
+                      <span>create</span>
+                      <b>click</b>
+                    </li>
+                    <li>
+                      <FontAwesomeIcon icon="eraser" className="icon" />
+                      <span>remove</span>
+                      <b>right click</b>
+                    </li>
+                    <li>
+                      <FontAwesomeIcon icon="sync-alt" className="icon" />
+                      <span>rotate</span>
+                      <b>drag</b>
+                    </li>
+                    <li>
+                      <FontAwesomeIcon icon="palette" className="icon" />
+                      <span>color</span>
+                    </li>
+                  </ul>
+                )
+                : (
+                  <div className="quiz-owner">
+                    <Cube />
+                    <span>owner{submissionUserNickName}</span>
+                  </div>
+                )
+              }
+            </PopContent>
+          )
+          : (
+            <PopContent>
+              <PopupTitle>correct!</PopupTitle>
+              <p className="quizSolutionKeyword">{quizSolution}</p>
+              <div className="correctUser">
+                <Cube />
+                <p>owner{correctNickName}</p>
+              </div>
+            </PopContent>
+          )
+        }
+      </PopupInner>
     </PopupWrap>
   );
 };
@@ -770,23 +947,23 @@ class App extends Component {
     } = this.props;
     const { id } = user;
     const { color, colors } = screen;
-    const { isStart, submissionUser, problem, problemLength } = quiz;
+    const { isStart, submissionUserId, submissionUserNickName, problem, problemLength } = quiz;
     const { correctUserId, correctNickName, quizSolution } = correct;
 
     return (
       <Fragment>
-        {/* <audio ref="audio_tag" src={createCubeSounc} autoPlay /> */}
-        <audio ref="audio_tag" src={bgSound} loop autoPlay />
+        {/* <audio ref="audio_tag" src={createCubeSound} autoPlay /> */}
+        <audio src={bgSound} loop autoPlay />
         {
           isPass
-          && <audio ref="audio_tag" src={correctSound} autoPlay />
+          && <audio src={correctSound} autoPlay />
         }
         {
           user.id
             ? <Game
                 users={users}
                 isStart={isStart}
-                submissionUser={submissionUser}
+                submissionUserId={submissionUserId}
                 id={id}
                 removeCube={removeCube}
                 createCube={createCube}
@@ -806,9 +983,11 @@ class App extends Component {
         {
           popup
           && <Popup
-              user={submissionUser}
+              submissionUserNickName={submissionUserNickName}
               correctNickName={correctNickName}
               quizSolution={quizSolution}
+              submissionUserId={submissionUserId}
+              id={id}
             />
         }
       </Fragment>

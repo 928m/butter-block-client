@@ -64,8 +64,8 @@ const mapDispatchToProps = (dispatch) => {
         dispatch(userListSettings(users));
       });
 
-      socket.on('start', ({ userId, problemLength }) => {
-        dispatch(problemInfoSettings(problemLength, userId));
+      socket.on('start', ({ userId, userNickName, problemLength }) => {
+        dispatch(problemInfoSettings(userId, userNickName, problemLength));
         dispatch(openPopup());
 
         setTimeout(() => {

@@ -27,11 +27,12 @@ export const problemSubmissionInfoSettings = (problem) => {
   };
 };
 
-export const problemInfoSettings = (problemLength, userId) => {
+export const problemInfoSettings = (userId, userNickName, problemLength) => {
   return {
     type: 'PROBLEM_INFO_SETTINGS',
     problemLength,
-    submissionUser: userId
+    submissionUserId: userId,
+    submissionUserNickName: userNickName
   };
 };
 

@@ -1,19 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-// @keyframes cube {
-//   0% {
-//     ${props => props.primary ? "palevioletred" : "white"};
-//     transform: rotateX(-30deg) rotateY(35deg) translate(-50%, -50%) scale(${props.size || 1});
-//   }
-//   50% {
-//     transform: rotateX(-30deg) rotateY(35deg) translate(-50%, -50%) scale(${props.size || 1}, ${(props.size) - 0.2 || 0.8});
-//   }
-//   100% {
-//     transform: rotateX(-30deg) rotateY(35deg) translate(-50%, -50%) scale(${props.size || 1});
-//   }
-// }
-
 const CubeBox = styled.div`
   width: 100px;
   height: 100px;
@@ -36,8 +23,8 @@ const CubeBox = styled.div`
     width: 100px;
     height: 100px;
     border-radius: 3px;
-    background: rgba(250, 223, 72, 0.2);
-    background: linear-gradient(rgba(252, 219, 35, 0.3), rgba(255, 188, 44, 0.2));
+    background: rgba(250, 223, 72, 0.3);
+    background: linear-gradient(rgba(252, 219, 35, 0.3), rgba(255, 188, 44, 0.3));
     box-shadow: 0 0 40px rgba(251, 188, 5, 0.2);
   }
 
@@ -56,6 +43,7 @@ const CubeBox = styled.div`
   & > div > div:nth-child(4) {
     transform: rotateX(270deg) translate3d(0, 0, 50px);
     animation: puddle 6s ease-in 2s both;
+    box-shadow: -9px 7px 60px rgba(151, 88, 5, 0.5);
   }
 
   & > div > div:nth-child(5) {

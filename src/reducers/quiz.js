@@ -4,7 +4,8 @@ const initialState = {
   isStart: false,
   problem: '',
   problemLength: 0,
-  submissionUser: '',
+  submissionUserId: '',
+  submissionUserNickName: '',
   isPass: false
 };
 
@@ -13,7 +14,8 @@ const quiz = (state = initialState, action) => {
     type,
     problem,
     problemLength,
-    submissionUser
+    submissionUserId,
+    submissionUserNickName
   } = action;
   const newQuiz = cloneDeep(state);
 
@@ -25,7 +27,8 @@ const quiz = (state = initialState, action) => {
     case 'PROBLEM_INFO_SETTINGS':
       newQuiz.isStart = true;
       newQuiz.problemLength = problemLength;
-      newQuiz.submissionUser = submissionUser;
+      newQuiz.submissionUserId = submissionUserId;
+      newQuiz.submissionUserNickName = submissionUserNickName;
       debugger
 
       return newQuiz;
