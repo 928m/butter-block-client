@@ -447,6 +447,22 @@ const UserList = styled.li`
     font-weight: 700;
     margin: 10px 0 0;
   }
+
+  .score {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    display: inline-block;
+    line-height: 25px;
+    color: #ffffff;
+    border-radius: 25px 25px 0 25px;
+    background: #2777CE;
+    text-align: center;
+    padding: 0 10px;
+    position: absolute;
+    top: 0;
+    left: 30px;
+  }
 `;
 
 class Users extends Component {
@@ -464,6 +480,7 @@ class Users extends Component {
             >
               <Cube />
               <span>{user.nickname}</span>
+              <em className="score">{user.score}</em>
               {user.message && <Message text={user.message} />}
             </UserList>
           ))
@@ -639,19 +656,18 @@ class ColorPicker extends Component {
 
 class Game extends Component {
   componentDidMount() {
-    const { socket, receiveMessage, onCorrectAnswer } = this.props;
+    const { socket, receiveMessage, onCorrectAnswer, onGameOver } = this.props;
 
     socket.on('message', ({ id, message }) => {
       receiveMessage(id, message);
     });
 
-    socket.on('pass', ({ id, solution, userNickName }) => {
-      onCorrectAnswer(id, solution, userNickName);
+    socket.on('pass', ({ id, solution, userNickName, users }) => {
+      onCorrectAnswer(id, solution, userNickName, users);
     });
 
     socket.on('end', (users) => {
-      alert('end!!');
-      console.log('users : ', users);
+      onGameOver(users);
     });
   }
 
@@ -749,8 +765,15 @@ const PopContent = styled.div`
   flex-wrap: wrap;
   height: 100%;
   box-sizing: border-box;
+  justify-content: center;
   align-items: center;
   position: relative;
+
+  .quizSolutionKeyword {
+    text-align: center;
+    font-weight: 500;
+    margin: 0 0 30px;
+  }
 
   .cube-wrap {
     transform: translateX(50%);
@@ -844,6 +867,7 @@ const PopupTitle = styled.h1`
   font-weight: 700;
   padding: 0 25px;
   line-height: 40px;
+  color: #ffffff;
   border-radius: 40px;
   letter-spacing: 3px;
   background: linear-gradient(145deg, #f6d365, #fda085);
@@ -855,71 +879,182 @@ const PopupTitle = styled.h1`
   transform: translate(-50%);
 `;
 
+const GameScoreList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    border-top: 1px solid #cccccc;
+
+    .cube-wrap {
+      flex-grow: 2;
+    }
+
+    &:first-child {
+      border-top: 0;
+
+      .cube-wrap { transform: scale(.7) translateX(50%); }
+      .score {
+        font-size: 40px;
+        color: #ffffff;
+        text-shadow: 2px 2px 0 #ffd684,
+        4px 4px 0 #fbbc05,
+        6px 6px 0 #e8b64c;
+      }
+    }
+    &:nth-child(2) {
+      .cube-wrap { transform: scale(.6) translateX(50%); }
+    }
+    &:nth-child(3) {
+      .cube-wrap { transform: scale(.5) translateX(50%); }
+    }
+
+    span {
+      flex-grow: 5;
+    }
+
+    .score {
+      flex-grow: 3;
+      font-style: normal;
+      font-weight: 700;
+    }
+  }
+`;
+
+const WinnerArea = styled.div`
+  margin: 0 0 50px;
+  position: relative;
+
+  .icon { margin: 0 10px 0 0; }
+
+  span {
+    font-size: 30px;
+    font-weight: 700;
+  }
+`;
+
+const WinnerPopup = (props) => {
+  const { gameResult } = props;
+
+  return (
+    <PopContent>
+      <PopupTitle>game over</PopupTitle>
+      <WinnerArea>
+        <FontAwesomeIcon icon="crown" className="icon" />
+        <span>{gameResult[0].nickname}</span>
+      </WinnerArea>
+      <GameScoreList>
+        {
+          gameResult.map((user) => (
+            <li key={user.id}>
+              <Cube />
+              <span>{user.nickname}</span>
+              <em className="score">{user.score}</em>
+            </li>
+          ))
+        }
+      </GameScoreList>
+    </PopContent>
+  );
+};
+
+const QuizCorrectPopup = (props) => {
+  const { quizSolution, correctNickName } = props;
+
+  return (
+    <PopContent>
+      <PopupTitle>correct!</PopupTitle>
+      <p className="quizSolutionKeyword">{quizSolution}</p>
+      <div className="correctUser">
+        <Cube />
+        <p>{correctNickName}</p>
+      </div>
+    </PopContent>
+  );
+};
+
+const NextQuizPopup = (props) => {
+  const {
+    id,
+    submissionUserId,
+    submissionUserNickName
+  } = props;
+
+  return (
+    <PopContent>
+        <PopupTitle>
+          {
+            (submissionUserId === id) ? 'how to use' : 'drawer'
+          }
+        </PopupTitle>
+        {
+          (submissionUserId === id)
+          ? (
+            <ul>
+              <li>
+                <FontAwesomeIcon icon="cubes" className="icon" />
+                <span>create</span>
+                <b>click</b>
+              </li>
+              <li>
+                <FontAwesomeIcon icon="eraser" className="icon" />
+                <span>remove</span>
+                <b>right click</b>
+              </li>
+              <li>
+                <FontAwesomeIcon icon="sync-alt" className="icon" />
+                <span>rotate</span>
+                <b>drag</b>
+              </li>
+              <li>
+                <FontAwesomeIcon icon="palette" className="icon" />
+                <span>color</span>
+              </li>
+            </ul>
+          )
+          : (
+            <div className="quiz-owner">
+              <Cube />
+              <span>{submissionUserNickName}</span>
+            </div>
+          )
+        }
+      </PopContent>
+  );
+};
+
 const Popup = (props) => {
   const {
     id,
     submissionUserNickName,
     submissionUserId,
     quizSolution,
-    correctNickName
+    correctNickName,
+    isOver,
+    gameResult
   } = props;
 
   return (
-    <PopupWrap color={'linear-gradient(145deg,#f6d365,#fda085)'}>
+    <PopupWrap>
       <PopupInner>
         {
-          !correctNickName
-          ? (
-            <PopContent>
-              <PopupTitle>
-                {
-                  (submissionUserId === id) ? 'how to use' : 'drawer'
-                }
-              </PopupTitle>
-              {
-                (submissionUserId === id)
-                ? (
-                  <ul>
-                    <li>
-                      <FontAwesomeIcon icon="cubes" className="icon" />
-                      <span>create</span>
-                      <b>click</b>
-                    </li>
-                    <li>
-                      <FontAwesomeIcon icon="eraser" className="icon" />
-                      <span>remove</span>
-                      <b>right click</b>
-                    </li>
-                    <li>
-                      <FontAwesomeIcon icon="sync-alt" className="icon" />
-                      <span>rotate</span>
-                      <b>drag</b>
-                    </li>
-                    <li>
-                      <FontAwesomeIcon icon="palette" className="icon" />
-                      <span>color</span>
-                    </li>
-                  </ul>
-                )
-                : (
-                  <div className="quiz-owner">
-                    <Cube />
-                    <span>owner{submissionUserNickName}</span>
-                  </div>
-                )
-              }
-            </PopContent>
-          )
-          : (
-            <PopContent>
-              <PopupTitle>correct!</PopupTitle>
-              <p className="quizSolutionKeyword">{quizSolution}</p>
-              <div className="correctUser">
-                <Cube />
-                <p>owner{correctNickName}</p>
-              </div>
-            </PopContent>
-          )
+          isOver
+            ? <WinnerPopup gameResult={gameResult} />
+            : (correctNickName
+              ? <QuizCorrectPopup
+                  quizSolution={quizSolution}
+                  correctNickName={correctNickName}
+                />
+              : <NextQuizPopup
+                  id={id}
+                  submissionUserId={submissionUserId}
+                  submissionUserNickName={submissionUserNickName}
+                />
+            )
         }
       </PopupInner>
     </PopupWrap>
@@ -943,17 +1078,19 @@ class App extends Component {
       screen,
       correct,
       isPass,
+      onGameOver,
+      gameResult,
       popup
     } = this.props;
     const { id } = user;
     const { color, colors } = screen;
-    const { isStart, submissionUserId, submissionUserNickName, problem, problemLength } = quiz;
+    const { isStart, isOver, submissionUserId, submissionUserNickName, problem, problemLength } = quiz;
     const { correctUserId, correctNickName, quizSolution } = correct;
 
     return (
       <Fragment>
         {/* <audio ref="audio_tag" src={createCubeSound} autoPlay /> */}
-        <audio src={bgSound} loop autoPlay />
+        {/* <audio src={bgSound} loop autoPlay /> */}
         {
           isPass
           && <audio src={correctSound} autoPlay />
@@ -977,6 +1114,7 @@ class App extends Component {
                 isPass={isPass}
                 quizKeywordLength={problemLength}
                 quizKeyword={problem}
+                onGameOver={onGameOver}
               />
             : <Login onClickLogin={onLogin} />
         }
@@ -988,6 +1126,8 @@ class App extends Component {
               quizSolution={quizSolution}
               submissionUserId={submissionUserId}
               id={id}
+              isOver={isOver}
+              gameResult={gameResult}
             />
         }
       </Fragment>

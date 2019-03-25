@@ -6,7 +6,8 @@ const initialState = {
   problemLength: 0,
   submissionUserId: '',
   submissionUserNickName: '',
-  isPass: false
+  isPass: false,
+  isOver: false
 };
 
 const quiz = (state = initialState, action) => {
@@ -29,7 +30,11 @@ const quiz = (state = initialState, action) => {
       newQuiz.problemLength = problemLength;
       newQuiz.submissionUserId = submissionUserId;
       newQuiz.submissionUserNickName = submissionUserNickName;
-      debugger
+
+      return newQuiz;
+    case 'GAME_OVER':
+      newQuiz.isStart = false;
+      newQuiz.isOver = true;
 
       return newQuiz;
     default:

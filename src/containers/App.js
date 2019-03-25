@@ -9,7 +9,8 @@ import {
   correctAnswer,
   initializeCorrectAnswerInformation,
   closePopup,
-  openPopup
+  openPopup,
+  gameOver
 } from '../actions';
 import App from '../components/App/App';
 import io from 'socket.io-client';
@@ -26,11 +27,17 @@ const mapStateToProps = (state) => {
   } = state;
   const userList = state.users;
   const isPass = correct.isPass;
-  const users = userList.map((user) => ({
-    id: user.id,
-    nickname: user.nickname,
-    message: chat[user.id]
-  }));
+  const users = Object.keys(userList).map((key) => {
+    const user = userList[key];
+
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      message: chat[user.id],
+      score: user.score
+    };
+  });
+  const gameResult = users.sort((currentUser, nextUser) => nextUser.score - currentUser.score);
 
   correct.correctUserId = correct.id;
   correct.correctNickName = correct.nickname;
@@ -45,6 +52,7 @@ const mapStateToProps = (state) => {
     correct,
     isPass,
     socket,
+    gameResult,
     popup
   };
 };
@@ -56,8 +64,8 @@ const mapDispatchToProps = (dispatch) => {
 
       socket.emit('user', name);
 
-      socket.on('order', ({ id, order }) => {
-        dispatch(userInfoSettings(id, order));
+      socket.on('user id', (id) => {
+        dispatch(userInfoSettings(id));
       });
 
       socket.on('users', (users) => {
@@ -75,6 +83,10 @@ const mapDispatchToProps = (dispatch) => {
 
       socket.on('submission', (problem) => {
         dispatch(problemSubmissionInfoSettings(problem));
+
+        setTimeout(() => {
+          socket.emit('timeout');
+        }, (1000 * 60) * 5);
       });
     },
     createCube(cubeObj) {
@@ -96,14 +108,20 @@ const mapDispatchToProps = (dispatch) => {
     onChangeColor(color) {
       dispatch(colorSettings(Number(color)));
     },
-    onCorrectAnswer(id, solution, userNickName) {
+    onCorrectAnswer(id, solution, userNickName, users) {
       dispatch(correctAnswer(id, solution, userNickName));
+      dispatch(userListSettings(users));
       dispatch(openPopup());
 
       setTimeout(() => {
         dispatch(closePopup());
         dispatch(initializeCorrectAnswerInformation());
       }, 4000);
+    },
+    onGameOver(users) {
+      dispatch(userListSettings(users));
+      dispatch(gameOver());
+      dispatch(openPopup());
     }
   };
 };

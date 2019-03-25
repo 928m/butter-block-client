@@ -5,11 +5,10 @@ export const userEntered = (user) => {
   };
 };
 
-export const userInfoSettings = (id, order) => {
+export const userInfoSettings = (id) => {
   return {
     type: 'USER_INFO_SETTINGS',
-    id,
-    order
+    id
   }
 };
 
@@ -75,5 +74,11 @@ export const openPopup = () => {
 export const closePopup = () => {
   return {
     type: 'CLOSE_POPUP'
+  };
+};
+
+export const gameOver = () => {
+  return {
+    type: 'GAME_OVER'
   };
 };
