@@ -10,11 +10,17 @@ import {
   initializeCorrectAnswerInformation,
   closePopup,
   openPopup,
-  gameOver
+  gameOver,
+  setTimer,
+  initialTimeCount,
+  timeOut
 } from '../actions';
 import App from '../components/App/App';
 import io from 'socket.io-client';
 let socket;
+// let setTimer;
+const fix = 1000 * 10;
+// let time = fix;
 
 const mapStateToProps = (state) => {
   const {
@@ -27,6 +33,7 @@ const mapStateToProps = (state) => {
   } = state;
   const userList = state.users;
   const isPass = correct.isPass;
+  const isTimeout = correct.isTimeout;
   const users = Object.keys(userList).map((key) => {
     const user = userList[key];
 
@@ -51,13 +58,15 @@ const mapStateToProps = (state) => {
     screen,
     correct,
     isPass,
+    isTimeout,
     socket,
     gameResult,
     popup
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, ownProps) => {
+  console.log(ownProps);
   return {
     onLogin(name) {
       socket = io('http://localhost:8081');
@@ -75,6 +84,7 @@ const mapDispatchToProps = (dispatch) => {
       socket.on('start', ({ userId, userNickName, problemLength }) => {
         dispatch(problemInfoSettings(userId, userNickName, problemLength));
         dispatch(openPopup());
+        dispatch(initialTimeCount());
 
         setTimeout(() => {
           dispatch(closePopup());
@@ -83,10 +93,6 @@ const mapDispatchToProps = (dispatch) => {
 
       socket.on('submission', (problem) => {
         dispatch(problemSubmissionInfoSettings(problem));
-
-        setTimeout(() => {
-          socket.emit('timeout');
-        }, (1000 * 60) * 5);
       });
     },
     createCube(cubeObj) {
@@ -118,10 +124,16 @@ const mapDispatchToProps = (dispatch) => {
         dispatch(initializeCorrectAnswerInformation());
       }, 4000);
     },
+    onTimeOut() {
+      dispatch(timeOut());
+    },
     onGameOver(users) {
       dispatch(userListSettings(users));
       dispatch(gameOver());
       dispatch(openPopup());
+    },
+    onSetTimer(time) {
+      dispatch(setTimer(time));
     }
   };
 };

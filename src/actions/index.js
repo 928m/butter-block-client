@@ -82,3 +82,29 @@ export const gameOver = () => {
     type: 'GAME_OVER'
   };
 };
+
+export const setTimeCount = (timer) => {
+  return {
+    type: 'SET_TIME_COUNT',
+    timer
+  }
+};
+
+export const timeOut = () => {
+  return {
+    type: 'TIME_OUT'
+  }
+};
+
+export const initialTimeCount = () => {
+  return {
+    type: 'INITIAL_TIME_COUNT'
+  };
+};
+
+export const setTimer = (time) => {
+  return {
+    type: 'SET_TIMER',
+    time
+  };
+};

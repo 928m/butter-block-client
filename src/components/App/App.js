@@ -56,9 +56,14 @@ class ThreeScene extends Component{
   }
 
   shouldComponentUpdate(nextProps) {
-    const { isStart, isPass } = nextProps;
+    const { isStart, isPass, isTimeout } = nextProps;
+    const currentTimeout = this.props.isTimeout;
+    const currentPass = this.props.isPass;
+    const isFirstStart = (this.on && isStart);
+    const isPassed = !currentPass && (currentPass !== isPass);
+    const isTimedOut = !currentTimeout && (currentTimeout !== isTimeout);
 
-    if ((this.on && isStart) || isPass) {
+    if (isPassed || isFirstStart || isTimedOut) {
       this.screenRemove();
       this.on = false;
 
@@ -265,7 +270,7 @@ const MessageContent = styled.p`
   display: block;
   position: absolute;
   top: 30%;
-  left: 0;
+  right: 80%;
   z-index: 100;
   padding: 10px 20px;
   font-size: 12px;
@@ -451,12 +456,12 @@ const UserList = styled.li`
   .score {
     font-style: normal;
     font-weight: 500;
-    font-size: 13px;
+    font-size: 18px;
     display: inline-block;
-    line-height: 25px;
+    line-height: 30px;
     color: #ffffff;
     border-radius: 25px 25px 0 25px;
-    background: #2777CE;
+    background: #ff7754;
     text-align: center;
     padding: 0 10px;
     position: absolute;
@@ -588,7 +593,7 @@ const ColorItem = styled.li`
     height: 40px;
     background: ${props => props.color};
     border-radius: 10px;
-    box-shadow: 0 0 15px ${props => props.color};
+    box-shadow: 0 0 10px ${props => props.color};
     position: relative;
     z-index: 10;
     transition: all .5s;
@@ -654,9 +659,55 @@ class ColorPicker extends Component {
   }
 }
 
+const TimerBox = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  color: ${props => props.color};
+  background: transparent;
+  text-align: center;
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  line-height: 50px;
+  border-radius: 10px;
+  letter-spacing: 2px;
+`;
+
+class Timer extends Component {
+  render() {
+    const { time } = this.props;
+    let min = Math.floor(time / 60000);
+    let sec = time % 60000 / 1000;
+
+    min = (min < 10) ? `0${min}` : min;
+    sec = (sec < 10) ? `0${sec}` : sec;
+
+    return (
+      <TimerBox color={`${time >= (1000 * 30) ? '#2777CE' : '#F44336'}`}>
+        <span>{min}</span>:<span>{sec}</span>
+      </TimerBox>
+    );
+  }
+}
+
+const QuizHeader = styled.div`
+  display: block;
+  min-width: 250px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%);
+`;
+
 class Game extends Component {
+  constructor(props) {
+    super(props);
+    this.countStart = false;
+  }
+
   componentDidMount() {
-    const { socket, receiveMessage, onCorrectAnswer, onGameOver } = this.props;
+    const { socket, onSetTimer, receiveMessage, onCorrectAnswer, onGameOver, onTimeOut } = this.props;
 
     socket.on('message', ({ id, message }) => {
       receiveMessage(id, message);
@@ -666,8 +717,16 @@ class Game extends Component {
       onCorrectAnswer(id, solution, userNickName, users);
     });
 
+    socket.on('time out', () => {
+      onTimeOut();
+    });
+
     socket.on('end', (users) => {
       onGameOver(users);
+    });
+
+    socket.on('time counter', (time) => {
+      onSetTimer(time);
     });
   }
 
@@ -681,9 +740,11 @@ class Game extends Component {
       onSubmitMessage,
       submissionUserId,
       id,
+      time,
       createCube,
       socket,
       isPass,
+      isTimeout,
       quizKeywordLength,
       quizKeyword,
       removeCube
@@ -693,12 +754,17 @@ class Game extends Component {
       <div className="game-wrap">
         {
           isStart
-          && <ProblemKeyword
-              keyword={quizKeyword}
-              keywordLength={quizKeywordLength}
-              submissionUserId={submissionUserId}
-              id={id}
-            />
+          && (
+            <QuizHeader>
+              <ProblemKeyword
+                keyword={quizKeyword}
+                keywordLength={quizKeywordLength}
+                submissionUserId={submissionUserId}
+                id={id}
+              />
+              <Timer time={time} />
+            </QuizHeader>
+          )
         }
         {
           (submissionUserId === id)
@@ -713,6 +779,7 @@ class Game extends Component {
           removeCube={removeCube}
           socket={socket}
           isPass={isPass}
+          isTimeout={isTimeout}
         />
         <Chat id={id} onSubmitMessage={onSubmitMessage} />
         <Users users={users} socket={socket} submissionUserId={submissionUserId} id={id} />
@@ -1078,14 +1145,26 @@ class App extends Component {
       screen,
       correct,
       isPass,
+      isTimeout,
       onGameOver,
       gameResult,
+      onTimeOut,
+      onStartTimeCounter,
+      onSetTimer,
       popup
     } = this.props;
+    const {
+      isStart,
+      isOver,
+      time,
+      submissionUserId,
+      submissionUserNickName,
+      problem,
+      problemLength
+    } = quiz;
     const { id } = user;
     const { color, colors } = screen;
-    const { isStart, isOver, submissionUserId, submissionUserNickName, problem, problemLength } = quiz;
-    const { correctUserId, correctNickName, quizSolution } = correct;
+    const { correctNickName, quizSolution } = correct;
 
     return (
       <Fragment>
@@ -1098,8 +1177,11 @@ class App extends Component {
         {
           user.id
             ? <Game
+                onTimeOut={onTimeOut}
+                onStartTimeCounter={onStartTimeCounter}
                 users={users}
                 isStart={isStart}
+                isTimeout={isTimeout}
                 submissionUserId={submissionUserId}
                 id={id}
                 removeCube={removeCube}
@@ -1112,9 +1194,12 @@ class App extends Component {
                 colors={colors}
                 onCorrectAnswer={onCorrectAnswer}
                 isPass={isPass}
+                isTimeout={isTimeout}
                 quizKeywordLength={problemLength}
                 quizKeyword={problem}
                 onGameOver={onGameOver}
+                time={time}
+                onSetTimer={onSetTimer}
               />
             : <Login onClickLogin={onLogin} />
         }

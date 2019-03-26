@@ -1,18 +1,19 @@
 import { cloneDeep } from 'lodash';
 
 const initialState = {
+  time: 0,
   isStart: false,
   problem: '',
   problemLength: 0,
   submissionUserId: '',
   submissionUserNickName: '',
-  isPass: false,
   isOver: false
 };
 
 const quiz = (state = initialState, action) => {
   const {
     type,
+    time,
     problem,
     problemLength,
     submissionUserId,
@@ -27,9 +28,14 @@ const quiz = (state = initialState, action) => {
       return newQuiz;
     case 'PROBLEM_INFO_SETTINGS':
       newQuiz.isStart = true;
+      newQuiz.timer = initialState.timer;
       newQuiz.problemLength = problemLength;
       newQuiz.submissionUserId = submissionUserId;
       newQuiz.submissionUserNickName = submissionUserNickName;
+
+      return newQuiz;
+    case 'SET_TIMER':
+      newQuiz.time = time;
 
       return newQuiz;
     case 'GAME_OVER':
