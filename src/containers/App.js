@@ -18,9 +18,6 @@ import {
 import App from '../components/App/App';
 import io from 'socket.io-client';
 let socket;
-// let setTimer;
-const fix = 1000 * 10;
-// let time = fix;
 
 const mapStateToProps = (state) => {
   const {
@@ -65,8 +62,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => {
-  console.log(ownProps);
+const mapDispatchToProps = (dispatch) => {
   return {
     onLogin(name) {
       socket = io('http://localhost:8081');

@@ -1,4 +1,10 @@
 import { cloneDeep } from 'lodash';
+import {
+  GAME_OVER,
+  PROBLEM_SUBMISSION_INFO_SETTINGS,
+  PROBLEM_INFO_SETTINGS,
+  SET_TIMER
+} from '../actions/actionTypes';
 
 const initialState = {
   time: 0,
@@ -22,11 +28,11 @@ const quiz = (state = initialState, action) => {
   const newQuiz = cloneDeep(state);
 
   switch (type) {
-    case 'PROBLEM_SUBMISSION_INFO_SETTINGS':
+    case PROBLEM_SUBMISSION_INFO_SETTINGS:
       newQuiz.problem = problem;
 
       return newQuiz;
-    case 'PROBLEM_INFO_SETTINGS':
+    case PROBLEM_INFO_SETTINGS:
       newQuiz.isStart = true;
       newQuiz.timer = initialState.timer;
       newQuiz.problemLength = problemLength;
@@ -34,11 +40,11 @@ const quiz = (state = initialState, action) => {
       newQuiz.submissionUserNickName = submissionUserNickName;
 
       return newQuiz;
-    case 'SET_TIMER':
+    case SET_TIMER:
       newQuiz.time = time;
 
       return newQuiz;
-    case 'GAME_OVER':
+    case GAME_OVER:
       newQuiz.isStart = false;
       newQuiz.isOver = true;
 

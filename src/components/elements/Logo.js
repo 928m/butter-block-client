@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Cube from '../../elements/Cube';
+import Cube from './Cube';
 
 const LogoWrap = styled.div`
   display: flex;
@@ -20,7 +20,7 @@ const Title = styled.h1`
   margin: 0 0 0 30px;
 `;
 
-const Logo = () => {
+export const Logo = () => {
   return (
     <LogoWrap>
       <Cube />
@@ -31,5 +31,3 @@ const Logo = () => {
     </LogoWrap>
   );
 };
-
-export default Logo;

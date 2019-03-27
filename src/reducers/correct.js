@@ -1,11 +1,17 @@
 import { cloneDeep } from 'lodash';
+import {
+  CORRECT,
+  INITIAL_TIME_COUNT,
+  INITIALIZE_CORRECT_ANSWER_INFORMATION,
+  TIME_OUT
+} from '../actions/actionTypes';
 
 const initialState = {
-  nickname: '',
   id: '',
-  solution: '',
   isPass: false,
-  isTimeout: false
+  isTimeout: false,
+  nickname: '',
+  solution: ''
 };
 
 const correct = (state = initialState, action) => {
@@ -18,22 +24,22 @@ const correct = (state = initialState, action) => {
   const newCorrect = cloneDeep(state);
 
   switch (type) {
-    case 'CORRECT':
+    case CORRECT:
       newCorrect.nickname = nickname;
       newCorrect.id = id;
       newCorrect.solution = solution;
       newCorrect.isPass = true;
 
       return newCorrect;
-    case 'TIME_OUT':
+    case TIME_OUT:
       newCorrect.isTimeout = true;
 
       return newCorrect;
-    case 'INITIAL_TIME_COUNT':
+    case INITIAL_TIME_COUNT:
       newCorrect.isTimeout = false;
 
       return newCorrect;
-    case 'INITIALIZE_CORRECT_ANSWER_INFORMATION':
+    case INITIALIZE_CORRECT_ANSWER_INFORMATION:
       return initialState;
     default:
       return state;

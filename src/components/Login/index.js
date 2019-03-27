@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import Button from './Button';
-import Logo from './Logo';
-import Notice from './Notice';
-import Input from './Input';
-import LoginWrap from './LoginWrap';
-import LoginCont from './LoginCont';
+import {
+  Button,
+  Notice,
+  Input,
+  LoginWrap,
+  LoginCont
+} from '../StyledComponents';
+import { Logo } from '../elements/Logo';
 
 class Login extends Component{
   constructor(props) {
@@ -55,7 +57,7 @@ class Login extends Component{
             <Input type="text" placeholder="create your name" onChange={this.onChangeInputValue} />
             {
               !isPass
-                ? <Notice>공백없이 입력해주세요.</Notice>
+                ? <Notice>닉네임을 입력해주세요.</Notice>
                 : null
             }
             <Button type="button" onClick={this.onClickLoginButton}>login</Button>

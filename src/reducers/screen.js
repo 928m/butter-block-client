@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash';
+import { COLOR_SETTINGS } from '../actions/actionTypes';
 
 const initialState = {
   color: 0xfbbc05,
@@ -13,7 +14,7 @@ const screen = (state = initialState, action) => {
   const newScreen = cloneDeep(state);
 
   switch (type) {
-    case 'COLOR_SETTINGS':
+    case COLOR_SETTINGS:
       newScreen.color = color;
 
       return newScreen;

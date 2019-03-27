@@ -1,110 +1,97 @@
-export const userEntered = (user) => {
-  return {
-    type: 'USER_ENTERED',
-    user
-  };
-};
+import {
+  COLOR_SETTINGS,
+  CORRECT,
+  CLOSE_POPUP,
+  GAME_OVER,
+  INITIAL_TIME_COUNT,
+  INITIALIZE_CORRECT_ANSWER_INFORMATION,
+  OPEN_POPUP,
+  PROBLEM_SUBMISSION_INFO_SETTINGS,
+  PROBLEM_INFO_SETTINGS,
+  RECEIVE_MESSAGE,
+  SET_TIMER,
+  SET_TIME_COUNT,
+  TIME_OUT,
+  USER_ENTERED,
+  USER_INFO_SETTINGS,
+  USER_LIST_SETTINGS
+} from './actionTypes';
 
-export const userInfoSettings = (id) => {
-  return {
-    type: 'USER_INFO_SETTINGS',
-    id
-  }
-};
+export const userEntered = (user) => ({
+  type: USER_ENTERED,
+  user
+});
 
-export const userListSettings = (users) => {
-  return {
-    type: 'USER_LIST_SETTINGS',
-    users
-  }
-};
+export const userInfoSettings = (id) => ({
+  type: USER_INFO_SETTINGS,
+  id
+});
 
-export const problemSubmissionInfoSettings = (problem) => {
-  return {
-    type: 'PROBLEM_SUBMISSION_INFO_SETTINGS',
-    problem
-  };
-};
+export const userListSettings = (users) => ({
+  type: USER_LIST_SETTINGS,
+  users
+});
 
-export const problemInfoSettings = (userId, userNickName, problemLength) => {
-  return {
-    type: 'PROBLEM_INFO_SETTINGS',
-    problemLength,
-    submissionUserId: userId,
-    submissionUserNickName: userNickName
-  };
-};
+export const problemSubmissionInfoSettings = (problem) => ({
+  type: PROBLEM_SUBMISSION_INFO_SETTINGS,
+  problem
+});
 
-export const receiveMessage = (id, message) => {
-  return {
-    type: 'RECEIVE_MESSAGE',
-    id,
-    message
-  };
-};
+export const problemInfoSettings = (userId, userNickName, problemLength) => ({
+  type: PROBLEM_INFO_SETTINGS,
+  problemLength,
+  submissionUserId: userId,
+  submissionUserNickName: userNickName
+});
 
-export const colorSettings = (color) => {
-  return {
-    type: 'COLOR_SETTINGS',
-    color
-  };
-};
+export const receiveMessage = (id, message) => ({
+  type: RECEIVE_MESSAGE,
+  id,
+  message
+});
 
-export const correctAnswer = (id, solution, nickname) => {
-  return {
-    type: 'CORRECT',
-    id,
-    solution,
-    nickname
-  };
-};
+export const colorSettings = (color) => ({
+  type: COLOR_SETTINGS,
+  color
+});
 
-export const initializeCorrectAnswerInformation = () => {
-  return {
-    type: 'INITIALIZE_CORRECT_ANSWER_INFORMATION'
-  };
-};
+export const correctAnswer = (id, solution, nickname) => ({
+  type: CORRECT,
+  id,
+  solution,
+  nickname
+});
 
-export const openPopup = () => {
-  return {
-    type: 'OPEN_POPUP'
-  };
-};
+export const initializeCorrectAnswerInformation = () => ({
+  type: INITIALIZE_CORRECT_ANSWER_INFORMATION
+});
 
-export const closePopup = () => {
-  return {
-    type: 'CLOSE_POPUP'
-  };
-};
+export const openPopup = () => ({
+  type: OPEN_POPUP
+});
 
-export const gameOver = () => {
-  return {
-    type: 'GAME_OVER'
-  };
-};
+export const closePopup = () => ({
+  type: CLOSE_POPUP
+});
 
-export const setTimeCount = (timer) => {
-  return {
-    type: 'SET_TIME_COUNT',
-    timer
-  }
-};
+export const gameOver = () => ({
+  type: GAME_OVER
+});
 
-export const timeOut = () => {
-  return {
-    type: 'TIME_OUT'
-  }
-};
+export const setTimeCount = (timer) => ({
+  type: SET_TIME_COUNT,
+  timer
+});
 
-export const initialTimeCount = () => {
-  return {
-    type: 'INITIAL_TIME_COUNT'
-  };
-};
+export const timeOut = () => ({
+  type: TIME_OUT
+});
 
-export const setTimer = (time) => {
-  return {
-    type: 'SET_TIMER',
-    time
-  };
-};
+export const initialTimeCount = () => ({
+  type: INITIAL_TIME_COUNT
+});
+
+export const setTimer = (time) => ({
+  type: SET_TIMER,
+  time
+});
