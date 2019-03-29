@@ -35,7 +35,7 @@ class ColorPicker extends Component {
               >
                 <em>{`#${hexColor}`}</em>
               </ColorItem>
-            )
+            );
           })
         }
       </Colors>

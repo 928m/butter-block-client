@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { GameWrap, LogoWrap } from '../StyledComponents';
+import { GameWrap, LogoWrap, Title } from '../StyledComponents';
 import { QuizHeader } from './QuizHeader';
-import { Logo } from '../elements/Logo';
 import ThreeScene from './ThreeScene';
 import ColorPicker from './ColorPicker';
 import Users from './Users';
@@ -59,7 +58,12 @@ class Game extends Component {
 
     return (
       <GameWrap>
-        <LogoWrap><Logo /></LogoWrap>
+        <LogoWrap>
+          <Title color="#181818">
+            butter<br/>
+            block.
+          </Title>
+        </LogoWrap>
         {
           isStart
           && (

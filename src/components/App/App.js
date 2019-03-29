@@ -49,7 +49,7 @@ class App extends Component {
         {/* <audio src={bgSound} loop autoPlay /> */}
         { isPass && <audio src={correctSound} autoPlay /> }
         {
-          user.id
+          id
             ? <Game
                 createCube={createCube}
                 color={color}
@@ -57,7 +57,6 @@ class App extends Component {
                 users={users}
                 id={id}
                 isStart={isStart}
-                isTimeout={isTimeout}
                 isTimeout={isTimeout}
                 isPass={isPass}
                 submissionUserId={submissionUserId}

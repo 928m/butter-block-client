@@ -232,6 +232,17 @@ export const PopContent = styled.div`
   }
 `;
 
+export const Title = styled.h1`
+  font-size: 1.5em;
+  font-weight: 900;
+  color: ${props => (props.color || '#ffffff')};
+  text-align: left;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 255, 255, .6);
+  margin: 0 0 0 30px;
+`;
+
 export const PopupTitle = styled.h1`
   font-size: 15px;
   font-weight: 700;

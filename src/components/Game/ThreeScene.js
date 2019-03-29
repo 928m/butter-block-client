@@ -18,6 +18,12 @@ class ThreeScene extends Component{
     this.onRemoveCube = this.onRemoveCube.bind(this);
     this.on = true;
     this.arr = [];
+
+    this.state = {
+      rotate: 0
+    };
+    this.makeBackgroundStar = this.makeBackgroundStar.bind(this);
+    this.animate = this.animate.bind(this);
   }
 
   componentDidMount(){
@@ -32,6 +38,7 @@ class ThreeScene extends Component{
     });
 
     this.init();
+    this.animate();
     // this.initialScreenRender(defaultShape);
   }
 
@@ -68,7 +75,7 @@ class ThreeScene extends Component{
     this.cubes = {};
     //ADD SCENE
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color( 0xf0f0f0 );
+    this.scene.background = new THREE.Color( 0xf5f5f5 );// 0x000611 // 0xf5f5f5
 
     //ADD CAMERA
     this.camera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
@@ -120,6 +127,7 @@ class ThreeScene extends Component{
     this.controls.minDistance = 1000;
     this.controls.maxDistance = 5000;
 
+    this.makeBackgroundStar();
     this.renderScene();
   }
 
@@ -160,8 +168,46 @@ class ThreeScene extends Component{
     this.renderScene();
   }
 
+  makeBackgroundStar() {
+    const colors = [0x9183fe, 0xffffff, 0xb6b096]; // [0x9183fe, 0xffffff, 0xb6b096];
+    const geometrys = [
+      new THREE.IcosahedronGeometry(5, 0),
+      new THREE.OctahedronGeometry(3, 0),
+      new THREE.TetrahedronGeometry(5, 0),
+      new THREE.TorusGeometry(5, 3, 16, 100)
+    ];
+
+    this.particles = new THREE.Group();
+    this.scene.add(this.particles);
+
+    for (let i = 0; i < 80; i ++) {
+      const geometry = geometrys[Math.floor(Math.random() * geometrys.length)];
+      const material = new THREE.MeshPhongMaterial({
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shading: THREE.FlatShading
+      });
+
+      const mesh = new THREE.Mesh(geometry, material);
+      const randomPosX = (Math.random() - 0.5) * 2000;
+      const randomPosY = (Math.random() - 0.5) * 2000;
+      const randomPosZ = (Math.random() - 0.5) * 2000;
+
+      mesh.position.set(randomPosX, randomPosY, randomPosZ);
+      mesh.updateMatrix();
+      mesh.matrixAutoUpdate = false;
+      // this.particles.add(mesh);
+    }
+  }
+
   renderScene() {
+    this.particles.rotation.x += 0.001;
+    this.particles.rotation.y -= 0.001;
     this.renderer.render(this.scene, this.camera);
+  }
+
+  animate() {
+    this.renderScene();
+    requestAnimationFrame(this.animate);
   }
 
   onMove(event) {
