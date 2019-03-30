@@ -147,6 +147,76 @@ export const PopContent = styled.div`
 
   .cube-wrap {
     transform: translateX(50%);
+
+    @keyframes rotate {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes rotateScale {
+      0% { transform: rotate(0) scale(0); }
+      50% { transform: rotate(270deg) scale(1); }
+      100% { transform: rotate(360deg) scale(0); }
+    }
+
+    .bubble-wrap {
+      display: none;
+      position: relative;
+
+      span {
+        display: block;
+        width: 15px;
+        height: 15px;
+        background: #ffffff;
+        box-sizing: border-box;
+        position: absolute;
+        animation: rotate 5s infinite;
+
+        &:nth-child(1) { top: -50px; left: -60%; }
+        &:nth-child(2) { top: -25px; left: -80%; }
+        &:nth-child(3) { top: -25px; left: -20%; }
+        &:nth-child(4) { top: -45px; left: 0%; }
+        &:nth-child(5) { top: -40px; left: 30%; }
+        &:nth-child(6) { top: -65px; left: 50%; }
+        &:nth-child(7) { top: -30px; left: 80%; }
+
+        &.rect {
+          animation: rotateScale 2s infinite;
+          animation-duration: 2s;
+          animation-delay: .4s;
+
+          &.line {
+            background: transparent;
+            border: 3px solid #ffffff;
+            animation: rotateScale 2s infinite;
+            animation-duration: 3s;
+            animation-delay: .2s;
+          }
+        }
+
+        &.circle {
+          border-radius: 50%;
+          animation: rotateScale 2s infinite;
+
+          &.line {
+            background: transparent;
+            border: 3px solid #ffffff;
+          }
+        }
+
+        &.triangle {
+          width: 0;
+          height: 0;
+          background: transparent;
+          border-top: 15px solid #ffffff;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-bottom: 0;
+          animation: rotateScale 2s infinite;
+          animation-delay: .5s;
+        }
+      }
+    }
   }
 
   ul {
@@ -220,6 +290,10 @@ export const PopContent = styled.div`
     text-align: center;
 
     .cube-wrap {
+      .bubble-wrap {
+        display: block;
+      }
+
       transform: translate(50%, 17px);
     }
 
@@ -344,9 +418,10 @@ export const TimerBox = styled.div`
 
 export const Colors = styled.ul`
   position: fixed;
-  top: 40px;
+  top: 50%;
   left: 40px;
   z-index: 100;
+  transform: translateY(-50%);
 `;
 
 export const ColorItem = styled.li`
@@ -405,6 +480,7 @@ export const UserList = styled.li`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
+  color: #ffffff;
   padding: 20px 0;
   margin: 30px 0 0;
   position: relative;
@@ -415,21 +491,14 @@ export const UserList = styled.li`
 
   &.me {
     span {
-      display: block;
+      display: inline-block;
+      width: auto;
       text-align: center;
       position: relative;
-
-      &:before {
-        display: inline-block;
-        content: 'me';
-        background: #181818;
-        font-size: 8px;
-        font-weight: 500;
-        padding: 5px;
-        color: #ffffff;
-        border-radius: 4px;
-        margin: 0 10px 0 0;
-      }
+      line-height: 24px;
+      padding: 0 10px;
+      color: #ffffff;
+      box-shadow: 0 5px 0 rgba(252,219,35,1);
     }
   }
 
@@ -462,6 +531,7 @@ export const UserList = styled.li`
 
   .cube-wrap {
     display: inline-block;
+    width: 100%;
     transform: scale(0.7) translateX(50%);
     animation: enter .6s ease-in-out;
   }
@@ -499,12 +569,13 @@ export const UserList = styled.li`
     line-height: 30px;
     color: #ffffff;
     border-radius: 25px 25px 0 25px;
-    background: #ff7754;
+    background: linear-gradient(0, #192861 0%,#372074 100%);
+    box-shadow: 2px 2px 15px #372074;
     text-align: center;
     padding: 0 10px;
     position: absolute;
     top: 0;
-    left: 30px;
+    left: 40px;
   }
 `;
 
@@ -520,8 +591,8 @@ export const Keyword = styled.div`
   font-weight: 700;
   letter-spacing: 3px;
   border-radius: 0 0 20px 20px;
-  background: rgba(0,0,0,.8);
-  color: #ffffff;
+  background: rgba(255,255,255,.8);
+  color: #181818;
   box-shadow: 0 3px 5px rgba(0, 0, 0, .1);
   display: flex;
   flex-wrap: wrap;
@@ -530,12 +601,14 @@ export const Keyword = styled.div`
 
 export const MessageContent = styled.p`
   display: block;
+  width: 100px;
   position: absolute;
   top: 30%;
-  right: 80%;
+  left: -25%;
   z-index: 100;
   padding: 10px 20px;
   font-size: 12px;
+  word-break: keep-all;
   border-radius: 15px 15px 0 15px;
   background: rgba(255, 255, 255, .5);
   color: #181818;
@@ -575,12 +648,10 @@ export const ChatWrap = styled.div`
   }
 
   &:after {
-    display: block;
-    content: '';
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #000000;
+    background: #ffffff;
     position: absolute;
     top: 50%;
     left: -3px;
@@ -594,7 +665,7 @@ export const ChatInput = styled.input`
   width: 100%;
   height: 50px;
   font-size: 13px;
-  padding: 0 30px 0 70px;
+  padding: 0 30px 0 100px;
   box-sizing: border-box;
   border-radius: 15px;
   font-weight: 500;

@@ -98,6 +98,7 @@ describe('Login', () => {
     login.setState({ value: '' });
     login.find('button').simulate('click');
 
+    const loginInstance = login.instance();
     expect(fn).toHaveBeenCalledTimes(0);
 
     login.setState({ value: '   ' });

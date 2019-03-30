@@ -13,7 +13,7 @@ class Game extends Component {
   }
 
   componentDidMount() {
-    const { socket, onSetTimer, receiveMessage, onCorrectAnswer, onGameOver, onTimeOut } = this.props;
+    const { socket, id, onSetTimer, receiveMessage, onCorrectAnswer, onGameOver, onTimeOut } = this.props;
 
     socket.on('message', ({ id, message }) => {
       receiveMessage(id, message);
@@ -28,7 +28,7 @@ class Game extends Component {
     });
 
     socket.on('end', (users) => {
-      onGameOver(users);
+      onGameOver(users, id);
     });
 
     socket.on('time counter', (time) => {
@@ -59,7 +59,7 @@ class Game extends Component {
     return (
       <GameWrap>
         <LogoWrap>
-          <Title color="#181818">
+          <Title color="#ffffff">
             butter<br/>
             block.
           </Title>

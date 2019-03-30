@@ -65,7 +65,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onLogin(name) {
-      // socket = io('http://localhost:8081');
       socket = io('http://192.168.0.48:8081');
 
       socket.emit('user', name);
@@ -124,7 +123,8 @@ const mapDispatchToProps = (dispatch) => {
     onTimeOut() {
       dispatch(timeOut());
     },
-    onGameOver(users) {
+    onGameOver(users, userId) {
+      dispatch(problemInfoSettings(userId));
       dispatch(userListSettings(users));
       dispatch(gameOver());
       dispatch(openPopup());

@@ -17,7 +17,6 @@ class ThreeScene extends Component{
     this.quizScreenRender = this.quizScreenRender.bind(this);
     this.onRemoveCube = this.onRemoveCube.bind(this);
     this.on = true;
-    this.arr = [];
 
     this.state = {
       rotate: 0
@@ -39,7 +38,7 @@ class ThreeScene extends Component{
 
     this.init();
     this.animate();
-    // this.initialScreenRender(defaultShape);
+    this.initialScreenRender(defaultShape);
   }
 
   componentWillUnmount(){
@@ -75,7 +74,7 @@ class ThreeScene extends Component{
     this.cubes = {};
     //ADD SCENE
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color( 0xf5f5f5 );// 0x000611 // 0xf5f5f5
+    this.scene.background = new THREE.Color( 0x000611 );// 0x000611
 
     //ADD CAMERA
     this.camera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
@@ -169,7 +168,7 @@ class ThreeScene extends Component{
   }
 
   makeBackgroundStar() {
-    const colors = [0x9183fe, 0xffffff, 0xb6b096]; // [0x9183fe, 0xffffff, 0xb6b096];
+    const colors = [0x9183fe, 0xffffff, 0xb6b096];
     const geometrys = [
       new THREE.IcosahedronGeometry(5, 0),
       new THREE.OctahedronGeometry(3, 0),
@@ -195,7 +194,7 @@ class ThreeScene extends Component{
       mesh.position.set(randomPosX, randomPosY, randomPosZ);
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
-      // this.particles.add(mesh);
+      this.particles.add(mesh);
     }
   }
 
@@ -280,11 +279,6 @@ class ThreeScene extends Component{
         position: voxel.position,
         color: this.props.color
       };
-
-      this.arr.push({
-        position: voxel.position,
-        color: this.props.color
-      });
 
       createCube({
         position: voxel.position,

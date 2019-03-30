@@ -112,6 +112,15 @@ const CubeBox = styled.div`
 const Cube = () => {
   return (
     <div className="cube-wrap">
+      <div className="bubble-wrap">
+        <span className="box rect"></span>
+        <span className="box circle line"></span>
+        <span className="box circle"></span>
+        <span className="box triangle"></span>
+        <span className="box rect line"></span>
+        <span className="box circle line"></span>
+        <span className="box rect"></span>
+      </div>
       <CubeBox>
         <div>
             <div></div>

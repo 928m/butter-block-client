@@ -11,7 +11,7 @@ class Timer extends Component {
     sec = (sec < 10) ? `0${sec}` : sec;
 
     return (
-      <TimerBox color={`${time >= (1000 * 30) ? '#2777CE' : '#F44336'}`}>
+      <TimerBox color={`${time >= (1000 * 30) ? '#ffffff' : '#F44336'}`}>
         <span>{min}</span>:<span>{sec}</span>
       </TimerBox>
     );

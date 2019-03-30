@@ -46,7 +46,7 @@ class App extends Component {
 
     return (
       <Fragment>
-        {/* <audio src={bgSound} loop autoPlay /> */}
+        <audio src={bgSound} loop autoPlay />
         { isPass && <audio src={correctSound} autoPlay /> }
         {
           id

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ColorPicker from './ColorPicker';
-import { configure, shallow, mount } from 'enzyme';
+import { configure, mount, shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
 configure({ adapter: new Adapter() });
@@ -47,5 +47,21 @@ describe('ColorPicker', () => {
     expect(typeof colorPicker.state().selected).toBe('number');
     expect(typeof colorPicker.find('li').first().find('em').text()).toBe('string');
     expect(colorPicker.find('li').first().find('em').text()).toBe(`#${hexColor}`);
+  });
+
+  it('component prop fn value', () => {
+    let getColorValue = '';
+    const fn = jest.fn((value) => { getColorValue = value; });
+    const colorPicker = mount(<ColorPicker colors={colors} color={color} onChangeColor={fn} />);
+
+    colorPicker.instance().onClickColor = jest.fn((color) => {
+      colorPicker.setState({ selected: color });
+      colorPicker.props().onChangeColor(color);
+    });
+    colorPicker.instance().forceUpdate();
+    colorPicker.find('li').first().simulate('click');
+
+    expect(colorPicker.instance().onClickColor).toHaveBeenCalledTimes(1);
+    expect(fn).toHaveBeenCalledTimes(1);
   });
 });
