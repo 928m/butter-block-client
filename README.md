@@ -44,7 +44,7 @@ __3D 큐브를 이용한 그림 맞추기 게임__
 
 ## Installation
 
-- Client
+__Client__
 
 ```
 https://github.com/minjihee89/butter-block-client.git
@@ -55,7 +55,7 @@ npm start
 
 
 
-- Server
+__Server__
 
 ```
 https://github.com/minjihee89/butter-block-server.git
@@ -120,3 +120,9 @@ __BackEnd__
 - audio관련 파일 처리
 - Three.js 용량처리
 - circle ci 배포자동화
+
+
+## Sincere Thanks
+
+Ken Huh / Vanilla Coding
+
