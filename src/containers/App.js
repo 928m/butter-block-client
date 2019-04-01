@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { cloneDeep } from 'lodash';
 import {
   userInfoSettings,
   userListSettings,
@@ -20,6 +21,7 @@ import io from 'socket.io-client';
 let socket;
 
 const mapStateToProps = (state) => {
+  const cloneState = cloneDeep(state);
   const {
     chat,
     quiz,
@@ -27,8 +29,8 @@ const mapStateToProps = (state) => {
     screen,
     correct,
     popup
-  } = state;
-  const userList = state.users;
+  } = cloneState;
+  const userList = cloneState.users;
   const isPass = correct.isPass;
   const isTimeout = correct.isTimeout;
   const users = Object.keys(userList).map((key) => {
@@ -65,7 +67,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onLogin(name) {
-      socket = io('http://192.168.0.48:8081');
+      socket = io('http://localhost:8081');
 
       socket.emit('user', name);
 
