@@ -124,5 +124,5 @@ __BackEnd__
 
 ## Sincere Thanks
 
-Ken Huh / Vanilla Coding
+[Ken Huh](https://github.com/ken123777 "ken huh") / Vanilla Coding
 
