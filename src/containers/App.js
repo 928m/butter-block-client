@@ -87,6 +87,10 @@ const mapDispatchToProps = (dispatch) => {
         }, 4000);
       });
 
+      socket.on('full', () => {
+        alert('인원이 초과되었습니다. 잠시후 다시 시도해주세요.');
+      });
+
       socket.on('submission', (problem) => {
         dispatch(problemSubmissionInfoSettings(problem));
       });
@@ -123,8 +127,7 @@ const mapDispatchToProps = (dispatch) => {
     onTimeOut() {
       dispatch(timeOut());
     },
-    onGameOver(users, userId) {
-      dispatch(problemInfoSettings(userId));
+    onGameOver(users) {
       dispatch(userListSettings(users));
       dispatch(gameOver());
       dispatch(openPopup());

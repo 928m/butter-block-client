@@ -72,30 +72,24 @@ class ThreeScene extends Component{
     const height = this.mount.clientHeight;
     this.objects = [];
     this.cubes = {};
-    //ADD SCENE
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color( 0x000611 );// 0x000611
 
-    //ADD CAMERA
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color( 0x000611 );
+
     this.camera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
     this.camera.position.set( 500, 800, 1300 );
     this.camera.lookAt( 0, 0, 0 );
 
-    // roll-over helpers
     this.rollOverGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
     this.rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true , wireframe: false } );
     this.rollOverMesh = new THREE.Mesh( this.rollOverGeo, this.rollOverMaterial );
-    // this.scene.add( this.rollOverMesh );
 
-    // cubes
     this.cubeGeo = new THREE.BoxBufferGeometry( 50, 50, 50 );
     this.cubeMaterial = new THREE.MeshLambertMaterial( { color: this.props.color } );
 
-    // grid
     const gridHelper = new THREE.GridHelper( 1000, 20, 0xb4c1cb, 0xb4c1cb );
     this.scene.add( gridHelper );
 
-    //
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
     this.geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
@@ -104,7 +98,6 @@ class ThreeScene extends Component{
     this.scene.add( this.plane );
     this.objects.push( this.plane );
 
-    // lights
     this.ambientLight = new THREE.AmbientLight( 0x606060 );
     this.scene.add( this.ambientLight );
     this.directionalLight = new THREE.DirectionalLight( 0xffffff );
@@ -114,13 +107,11 @@ class ThreeScene extends Component{
     this.renderer.setPixelRatio( window.devicePixelRatio );
     this.renderer.setSize( window.innerWidth, window.innerHeight );
 
-    //ADD RENDERER
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor('#000000');
     this.renderer.setSize(width, height);
     this.mount.appendChild(this.renderer.domElement);
 
-    // controls
     this.controls = new OrbitControls( this.camera, this.mount );
     this.controls.maxPolarAngle = Math.PI * 0.5;
     this.controls.minDistance = 1000;
