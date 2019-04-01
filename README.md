@@ -97,7 +97,6 @@ __BackEnd__
 ## deployment
 
 - Netlify
-- AWS Elastic Beenstalk (배포중)
 
 
 
@@ -119,6 +118,7 @@ __BackEnd__
 - 채팅관련 클라이언트 로직 수정
 - audio관련 파일 처리
 - Three.js 용량처리
+- AWS Elastic Beenstalk
 - circle ci 배포자동화
 
 
