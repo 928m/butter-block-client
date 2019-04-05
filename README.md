@@ -1,5 +1,7 @@
 # BUTTER BLOCK
 
+![butterblock](https://user-images.githubusercontent.com/25738826/55625697-7c3c5700-57e4-11e9-9c13-3f5b071855d4.gif)
+
 ## Features
 
 __3D 큐브를 이용한 그림 맞추기 게임__
