@@ -67,7 +67,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onLogin(name) {
-      socket = io('http://localhost:8081');
+      socket = io('http://butterblock-env.229ycxmwcw.ap-northeast-2.elasticbeanstalk.com/');
 
       socket.emit('user', name);
 
