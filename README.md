@@ -51,7 +51,7 @@ __Client__
 ```
 mkdir butter-block-client
 cd butter-block-client
-https://github.com/minjihee89/butter-block-client.git
+git clone https://github.com/minjihee89/butter-block-client.git
 cd butter-block-client
 npm install
 npm start
