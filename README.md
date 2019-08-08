@@ -60,7 +60,9 @@ npm start
 __Server__
 
 ```
-https://github.com/minjihee89/butter-block-server.git
+mkdir butter-block-server
+cd butter-block-server
+git clone https://github.com/minjihee89/butter-block-server.git
 cd butter-block-server
 npm install
 node index.js
