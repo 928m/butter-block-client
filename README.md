@@ -49,6 +49,8 @@ __3D 큐브를 이용한 그림 맞추기 게임__
 __Client__
 
 ```
+mkdir butter-block-client
+cd butter-block-client
 https://github.com/minjihee89/butter-block-client.git
 cd butter-block-client
 npm install
